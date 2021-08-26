@@ -19,4 +19,4 @@ A boilerplate for creating CRUD based Web API.
 
 **Preview:**
 
-![Web API](<img src="https://github.com/pyhoon/jAdmin/blob/master/Preview/web-api.png" title="Login" />) 
+![Web API](<img src="https://github.com/pyhoon/webapi-b4j/blob/master/Preview/web-api.png" title="Web API" />) 
