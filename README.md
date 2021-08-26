@@ -17,4 +17,6 @@ A boilerplate for creating CRUD based Web API.
 5. Copy the URL showed in logs and open it using your web browser. You will see something like this:
 `http://127.0.0.1:19800/v1/`
 
-![alt text](image.jpg)
+**Preview:**
+
+![Web API](<img src="https://github.com/pyhoon/jAdmin/blob/master/Preview/web-api.png" title="Login" />) 
