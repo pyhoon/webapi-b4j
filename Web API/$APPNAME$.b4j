@@ -1,0 +1,160 @@
+﻿AppType=StandardJava
+Build1=Default,b4j.webapi
+File1=index.html
+File2=main.html
+FileGroup1=Default Group
+FileGroup2=Default Group
+Group=Default Group
+Library1=byteconverter
+Library2=jcore
+Library3=jserver
+Library4=json
+Library5=jsql
+Library6=javaobject
+Module1=DataUtils
+Module2=DefaultHandler
+Module3=HomeHandler
+Module4=HttpsFilter
+Module5=ProductHandler
+Module6=Utility
+Module7=WebUtils
+NumberOfFiles=2
+NumberOfLibraries=6
+NumberOfModules=7
+Version=9.1
+@EndOfDesignText@
+' Name: 		Web API Lite
+' Description: 	Non-UI application (console / server application)
+' Version: 		1.05.1
+
+#Region Project Attributes 
+	#CommandLineArgs:
+	#MergeLibraries: True 
+#End Region
+
+#Region AdditionalJar
+' MySQL connector
+#AdditionalJar: mysql-connector-java-5.1.49-bin
+#End Region
+
+'Template version 1.00
+Sub Process_Globals
+	Public const VERSION As Float = 1.05
+	Public srvr As Server
+	Public ROOT_PATH As String = "/"
+	Public ROOT_URL As String
+	Public SERVER_PORT As Int
+	Public SSL_PORT As Int
+
+	Public config As Map
+	Public queries As Map
+	
+	Type Conn (DatabaseName As String, DriverClass As String, JdbcUrl As String, User As String, Password As String, MaxPoolSize As Int)
+	Public Conn As Conn
+
+	Type Element (Root As Int, Parent As Int, Parent_Id As Int, Child As Int, Child_Id As Int, Max_Elements As Int)
+	Public Element As Element
+End Sub
+
+Sub AppStart (Args() As String)
+	config = Utility.ReadMapFile(File.DirApp, "config.ini")
+	queries = Utility.ReadMapFile(File.DirApp, "queries.ini")
+	
+	ROOT_PATH = config.Get("ROOT_PATH")
+	ROOT_URL = config.Get("ROOT_URL")
+	SERVER_PORT = config.Get("ServerPort")
+	SSL_PORT = config.Get("SSLPort") : If IsNumber(SSL_PORT) = False Then SSL_PORT = 0
+	
+	If SERVER_PORT = 0 Then
+		Log($"Server Port is not set!"$)
+		Log($"Application is terminated."$)
+		ExitApplication
+	End If
+	ROOT_URL = ROOT_URL & ":" & SERVER_PORT
+	
+	srvr.Initialize("")
+	srvr.Port = SERVER_PORT
+	
+	If SSL_PORT > 0 Then
+		ConfigureSSL(SSL_PORT)
+		ROOT_URL = config.Get("ROOT_URL") & ":" & SSL_PORT
+	End If
+	' Update ROOT URL
+	config.Put("ROOT_URL", ROOT_URL)
+	config.Put("VERSION", VERSION)
+	
+	Conn.Initialize
+	Conn.DatabaseName = config.Get("DatabaseName")
+	Conn.DriverClass = config.Get("DriverClass")
+	Conn.JdbcUrl = config.Get("JdbcUrl")
+	Conn.User = config.Get("User")
+	Conn.Password = config.Get("Password")
+	Conn.MaxPoolSize = config.Get("MaxPoolSize")
+	
+	' Check if database exists
+	DataUtils.CreateDatabaseIfNotExist
+
+	Element.Initialize
+	If ROOT_PATH <> "/" Then ' If webroot is using subdirectory
+		srvr.AddHandler(ROOT_PATH, "HomeHandler", False)
+		Element.Root = 1
+		Element.Parent = 2
+		Element.Parent_Id = 3
+		Element.Child = 4
+		Element.Child_Id = 5
+		Element.Max_Elements = 6
+	Else
+		Element.Root = 0
+		Element.Parent = 1
+		Element.Parent_Id = 2
+		Element.Child = 3
+		Element.Child_Id = 4
+		Element.Max_Elements = 5
+	End If
+	
+	srvr.StaticFilesFolder = File.Combine(File.DirApp, "www")
+	srvr.SetStaticFilesOptions(CreateMap("dirAllowed": False))
+	
+	' Add a home page
+	srvr.AddHandler("", "HomeHandler", False)
+	' Add more handlers here
+	srvr.AddHandler(ROOT_PATH & "default/*", "DefaultHandler", False)
+	srvr.AddHandler(ROOT_PATH & "category/*", "ProductHandler", False)
+	
+	' Server starts
+	srvr.Start
+	
+	Log($"Web API server (version = $1.2{VERSION}) is running on port ${srvr.Port}"$)
+	Log($"Open the following URL from your web browser"$)
+	Log(ROOT_URL & ROOT_PATH)
+	' Open a web browser and navigate to: http://127.0.0.1:19800/
+	StartMessageLoop
+End Sub
+
+Public Sub OpenConnection (pool As ConnectionPool) As ConnectionPool
+	Try
+		pool.Initialize(Conn.DriverClass, Conn.JdbcUrl, Conn.User, Conn.Password)
+		
+		Dim jo As JavaObject = pool
+		jo.RunMethod("setMaxPoolSize", Array(Conn.MaxPoolSize))
+	Catch
+		LogDebug(LastException)
+	End Try
+	Return pool
+End Sub
+
+#Region ConfigureSSL
+Private Sub ConfigureSSL (SslPort As Int)
+	Dim KeyStoreDir As String = config.Get("SSL_KEYSTORE_DIR")
+	Dim KeyStoreFile As String = config.Get("SSL_KEYSTORE_FILE")
+	Dim KeyStorePassword As String = config.Get("SSL_KEYSTORE_PASSWORD")
+	Dim ssl As SslConfiguration
+	ssl.Initialize
+	ssl.SetKeyStorePath(KeyStoreDir, KeyStoreFile)
+	ssl.KeyStorePassword = KeyStorePassword
+	'ssl.KeyManagerPassword = ""
+	srvr.SetSslConfiguration(ssl, SslPort)
+	'add filter to redirect all traffic from http to https (optional)
+	srvr.AddFilter("/*", "HttpsFilter", False)
+End Sub
+#End Region
