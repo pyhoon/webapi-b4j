@@ -18,4 +18,4 @@ A boilerplate for creating CRUD based Web API.
 `http://127.0.0.1:19800/v1/`
 
 **Preview:**
-![Web API](<img src="https://github.com/pyhoon/webapi-b4j/blob/master/Preview/web-api.png" title="Web API" />) 
+<img src="https://github.com/pyhoon/webapi-b4j/raw/main/Preview/web-api.png" title="Web API" />
