@@ -19,7 +19,7 @@ Sub Handle(req As ServletRequest, resp As ServletResponse)
 	Request = req
 	Response = resp
 	
-	' Search e.g. ' http://127.0.0.1:19800/?search=ha
+	' Search e.g. ' http://127.0.0.1:19800/v1/?search=ha
 	If Request.GetParameter("search") <> "" Then ' GET
 		Search(Request.GetParameter("search"))
 	Else if Request.Method.ToUpperCase = "POST" Then
@@ -39,8 +39,7 @@ Private Sub ShowHomePage
 End Sub
 
 Sub Search (SearchForText As String)
-	pool = Main.OpenConnection(pool)
-	Dim con As SQL = pool.GetConnection
+	Dim con As SQL = OpenDB
 	Dim strSQL As String
 	Try
 		Dim keys() As String = Regex.Split2(" ", 2, SearchForText)
@@ -67,6 +66,8 @@ Sub Search (SearchForText As String)
 			For i = 0 To res.ColumnCount - 1
 				If res.GetColumnName(i) = "aa" Then
 					Map2.Put(res.GetColumnName(i), res.GetInt2(i))
+				Else If res.GetColumnName(i) = "ee" Then
+					Map2.Put(res.GetColumnName(i), NumberFormat2(res.GetDouble2(i), 1, 2, 2, True))
 				Else
 					Map2.Put(res.GetColumnName(i), res.GetString2(i))
 				End If
@@ -78,6 +79,23 @@ Sub Search (SearchForText As String)
 		LogDebug(LastException)
 		Utility.ReturnError("Error Execute Query", 422, Response)
 	End Try
+	CloseDB(con)
+End Sub
+
+Sub OpenDB As SQL
+	If Main.Conn.DbType.EqualsIgnoreCase("mysql") Then
+		pool = Main.OpenConnection(pool)
+		Return pool.GetConnection
+	End If
+	If Main.Conn.DbType.EqualsIgnoreCase("sqlite") Then
+		Return Main.OpenSQLiteDB
+	End If
+	Return Null
+End Sub
+
+Sub CloseDB (con As SQL)
 	If con <> Null And con.IsInitialized Then con.Close
-	If pool.IsInitialized Then pool.ClosePool
+	If Main.Conn.DbType.EqualsIgnoreCase("mysql") Then
+		If pool.IsInitialized Then pool.ClosePool
+	End If
 End Sub
