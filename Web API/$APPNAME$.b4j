@@ -25,7 +25,7 @@ Version=9.1
 @EndOfDesignText@
 ' Name: 		Web API Lite
 ' Description: 	Non-UI application (console / server application)
-' Version: 		1.05.1
+' Version: 		1.06
 
 #Region Project Attributes 
 	#CommandLineArgs:
@@ -34,31 +34,35 @@ Version=9.1
 
 #Region AdditionalJar
 ' MySQL connector
-#AdditionalJar: mysql-connector-java-5.1.49-bin
+'#AdditionalJar: mysql-connector-java-5.1.49-bin
+' SQLite connector
+#AdditionalJar: sqlite-jdbc-3.36.0.2
 #End Region
 
-'Template version 1.00
+'Template version 1.06
 Sub Process_Globals
-	Public const VERSION As Float = 1.05
+	Public const VERSION As Float = 1.06
 	Public srvr As Server
-	Public ROOT_PATH As String = "/"
+	Public ROOT_PATH As String
 	Public ROOT_URL As String
 	Public SERVER_PORT As Int
 	Public SSL_PORT As Int
-
 	Public config As Map
 	Public queries As Map
-	
-	Type Conn (DatabaseName As String, DriverClass As String, JdbcUrl As String, User As String, Password As String, MaxPoolSize As Int)
 	Public Conn As Conn
-
-	Type Element (Root As Int, Parent As Int, Parent_Id As Int, Child As Int, Child_Id As Int, Max_Elements As Int)
 	Public Element As Element
+	Type Conn (DbName As String, DbType As String, DriverClass As String, JdbcUrl As String, User As String, Password As String, MaxPoolSize As Int)
+	Type Element (Root As Int, Parent As Int, Parent_Id As Int, Child As Int, Child_Id As Int, Max_Elements As Int)
 End Sub
 
 Sub AppStart (Args() As String)
 	config = Utility.ReadMapFile(File.DirApp, "config.ini")
-	queries = Utility.ReadMapFile(File.DirApp, "queries.ini")
+	If config.Get("DbType").As(String).EqualsIgnoreCase("mysql") Then
+		queries = Utility.ReadMapFile(File.DirApp, "queries-mysql.ini")
+	End If
+	If config.Get("DbType").As(String).EqualsIgnoreCase("sqlite") Then
+		queries = Utility.ReadMapFile(File.DirApp, "queries-sqlite.ini")
+	End If
 	
 	ROOT_PATH = config.Get("ROOT_PATH")
 	ROOT_URL = config.Get("ROOT_URL")
@@ -84,12 +88,15 @@ Sub AppStart (Args() As String)
 	config.Put("VERSION", VERSION)
 	
 	Conn.Initialize
-	Conn.DatabaseName = config.Get("DatabaseName")
+	Conn.DbName = config.Get("DbName")
+	Conn.DbType = config.Get("DbType")
 	Conn.DriverClass = config.Get("DriverClass")
 	Conn.JdbcUrl = config.Get("JdbcUrl")
-	Conn.User = config.Get("User")
-	Conn.Password = config.Get("Password")
-	Conn.MaxPoolSize = config.Get("MaxPoolSize")
+	If Conn.DbType.EqualsIgnoreCase("mysql") Then
+		Conn.User = config.Get("User")
+		Conn.Password = config.Get("Password")
+		Conn.MaxPoolSize = config.Get("MaxPoolSize")
+	End If	
 	
 	' Check if database exists
 	DataUtils.CreateDatabaseIfNotExist
@@ -117,6 +124,7 @@ Sub AppStart (Args() As String)
 	
 	' Add a home page
 	srvr.AddHandler("", "HomeHandler", False)
+	
 	' Add more handlers here
 	srvr.AddHandler(ROOT_PATH & "default/*", "DefaultHandler", False)
 	srvr.AddHandler(ROOT_PATH & "category/*", "ProductHandler", False)
@@ -141,6 +149,12 @@ Public Sub OpenConnection (pool As ConnectionPool) As ConnectionPool
 		LogDebug(LastException)
 	End Try
 	Return pool
+End Sub
+
+Public Sub OpenSQLiteDB As SQL
+	Dim DB As SQL
+	DB.InitializeSQLite(File.DirApp, Conn.DbName, False)
+	Return DB
 End Sub
 
 #Region ConfigureSSL

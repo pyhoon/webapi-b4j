@@ -33,33 +33,32 @@ Sub Handle (req As ServletRequest, resp As ServletResponse)
 End Sub
 
 Private Sub ProcessRequest
-	pool = Main.OpenConnection(pool)
 	Select Case Request.Method.ToUpperCase
 		Case "GET"
 			Select Case Elements.Length - 1
 				Case Main.Element.Root ' /
 
 				Case Main.Element.Parent ' /category
-					If Elements(Main.ELEMENT.Parent) = "category" Then
+					If Elements(Main.Element.Parent) = "category" Then
 						GetCategories("")
 					Else
 						Utility.ReturnError("Bad Request", 400, Response)
 					End If					
 				Case Main.Element.Parent_Id ' /category/{cat_id}
-					If Elements(Main.ELEMENT.Parent) = "category" Then
+					If Elements(Main.Element.Parent) = "category" Then
 						GetCategories(Elements(Main.Element.Parent_Id))
 					Else
 						Utility.ReturnError("Bad Request", 400, Response)
 					End If					
 				Case Main.Element.Child ' /category/{cat_id}/product
-					If Elements(Main.ELEMENT.Parent) = "category" And Elements(Main.ELEMENT.CHILD) = "product" Then
-						GetProductsByCategories(Elements(Main.ELEMENT.PARENT_ID), "")
+					If Elements(Main.Element.Parent) = "category" And Elements(Main.Element.Child) = "product" Then
+						GetProductsByCategories(Elements(Main.Element.Parent_Id), "")
 					Else
 						Utility.ReturnError("Bad Request", 400, Response)
 					End If
 				Case Main.Element.Child_Id ' /category/{cat_id}/product/{product_id}
-					If Elements(Main.ELEMENT.Parent) = "category" And Elements(Main.ELEMENT.CHILD) = "product" Then
-						GetProductsByCategories(Elements(Main.ELEMENT.PARENT_ID), Elements(Main.ELEMENT.CHILD_ID))
+					If Elements(Main.Element.Parent) = "category" And Elements(Main.Element.Child) = "product" Then
+						GetProductsByCategories(Elements(Main.Element.Parent_Id), Elements(Main.Element.Child_Id))
 					Else
 						Utility.ReturnError("Bad Request", 400, Response)
 					End If
@@ -69,14 +68,14 @@ Private Sub ProcessRequest
 		Case "POST"
 			Select Case Elements.Length - 1
 				Case Main.Element.Parent ' /category
-					If Elements(Main.ELEMENT.Parent) = "category" Then
+					If Elements(Main.Element.Parent) = "category" Then
 						PostCategory
 					Else
 						Utility.ReturnError("Bad Request", 400, Response)
 					End If					
 				Case Main.Element.Child ' /category/{cat_id}/product
-					If Elements(Main.ELEMENT.Parent) = "category" And Elements(Main.ELEMENT.CHILD) = "product" Then
-						PostProductByCategory(Elements(Main.ELEMENT.PARENT_ID))
+					If Elements(Main.Element.Parent) = "category" And Elements(Main.Element.Child) = "product" Then
+						PostProductByCategory(Elements(Main.Element.Parent_Id))
 					Else
 						Utility.ReturnError("Bad Request", 400, Response)
 					End If					
@@ -86,14 +85,14 @@ Private Sub ProcessRequest
 		Case "PUT"
 			Select Case Elements.Length - 1
 				Case Main.Element.Parent_Id ' /category/{cat_id}
-					If Elements(Main.ELEMENT.Parent) = "category" Then
-						PutCategoryById(Elements(Main.ELEMENT.PARENT_ID))
+					If Elements(Main.Element.Parent) = "category" Then
+						PutCategoryById(Elements(Main.Element.Parent_Id))
 					Else
 						Utility.ReturnError("Bad Request", 400, Response)
 					End If					
 				Case Main.Element.Child_Id ' /category/{cat_id}/product/{product_id}
-					If Elements(Main.ELEMENT.Parent) = "category" And Elements(Main.ELEMENT.CHILD) = "product" Then
-						PutProductByCategoryAndId(Elements(Main.ELEMENT.PARENT_ID), Elements(Main.ELEMENT.CHILD_ID))
+					If Elements(Main.Element.Parent) = "category" And Elements(Main.Element.Child) = "product" Then
+						PutProductByCategoryAndId(Elements(Main.Element.Parent_Id), Elements(Main.Element.Child_Id))
 					Else
 						Utility.ReturnError("Bad Request", 400, Response)
 					End If
@@ -103,14 +102,14 @@ Private Sub ProcessRequest
 		Case "DELETE"
 			Select Case Elements.Length - 1
 				Case Main.Element.Parent_Id ' /category/{cat_id}
-					If Elements(Main.ELEMENT.Parent) = "category" Then
-						DeleteCategoryById(Elements(Main.ELEMENT.PARENT_ID))
+					If Elements(Main.Element.Parent) = "category" Then
+						DeleteCategoryById(Elements(Main.Element.PARENT_ID))
 					Else
 						Utility.ReturnError("Bad Request", 400, Response)
 					End If					
 				Case Main.Element.Child_Id ' /category/{cat_id}/product/{product_id}
-					If Elements(Main.ELEMENT.Parent) = "category" And Elements(Main.ELEMENT.CHILD) = "product" Then
-						DeleteProductsByCategoryAndId(Elements(Main.ELEMENT.PARENT_ID), Elements(Main.ELEMENT.CHILD_ID))
+					If Elements(Main.Element.Parent) = "category" And Elements(Main.Element.Child) = "product" Then
+						DeleteProductsByCategoryAndId(Elements(Main.Element.Parent_Id), Elements(Main.Element.Child_Id))
 					Else
 						Utility.ReturnError("Bad Request", 400, Response)
 					End If
@@ -118,11 +117,10 @@ Private Sub ProcessRequest
 					Utility.ReturnError("Bad Request", 400, Response)
 			End Select
 	End Select
-	If pool.IsInitialized Then pool.ClosePool
 End Sub
 
 Private Sub CheckMaxElements As Boolean
-	If Elements.Length > Main.ELEMENT.MAX_ELEMENTS Or Elements.Length = 0 Then
+	If Elements.Length > Main.Element.Max_Elements Or Elements.Length = 0 Then
 		Return False
 	End If
 	Return True
@@ -137,8 +135,26 @@ Private Sub CheckAllowedVerb As Boolean
 	Return True
 End Sub
 
+Sub OpenDB As SQL
+	If Main.Conn.DbType.EqualsIgnoreCase("mysql") Then
+		pool = Main.OpenConnection(pool)
+		Return pool.GetConnection
+	End If
+	If Main.Conn.DbType.EqualsIgnoreCase("sqlite") Then
+		Return Main.OpenSQLiteDB
+	End If
+	Return Null
+End Sub
+
+Sub CloseDB (con As SQL)
+	If con <> Null And con.IsInitialized Then con.Close
+	If Main.Conn.DbType.EqualsIgnoreCase("mysql") Then
+		If pool.IsInitialized Then pool.ClosePool	
+	End If
+End Sub
+
 Sub GetCategories (cat_id As String)
-	Dim con As SQL = pool.GetConnection
+	Dim con As SQL = OpenDB
 	Dim strSQL As String
 	Try
 		If cat_id = "" Then
@@ -164,11 +180,11 @@ Sub GetCategories (cat_id As String)
 		LogDebug(LastException)
 		Utility.ReturnError("Error Execute Query", 422, Response)
 	End Try
-	If con <> Null And con.IsInitialized Then con.Close
+	CloseDB(con)
 End Sub
 
 Sub GetProductsByCategories (cat_id As String, id As String)
-	Dim con As SQL = pool.GetConnection
+	Dim con As SQL = OpenDB
 	Dim strSQL As String
 	Try
 		If id = "" Then
@@ -200,11 +216,11 @@ Sub GetProductsByCategories (cat_id As String, id As String)
 		LogDebug(LastException)
 		Utility.ReturnError("Error Execute Query", 422, Response)
 	End Try
-	If con <> Null And con.IsInitialized Then con.Close
+	CloseDB(con)
 End Sub
 
 Sub PostCategory
-	Dim con As SQL = pool.GetConnection
+	Dim con As SQL = OpenDB
 	Dim strSQL As String
 	Try
 		Dim data As Map = Utility.RequestData(Request)
@@ -225,11 +241,11 @@ Sub PostCategory
 		LogDebug(LastException)
 		Utility.ReturnError("Error Execute Query", 422, Response)
 	End Try
-	If con <> Null And con.IsInitialized Then con.Close
+	CloseDB(con)
 End Sub
 
 Sub PostProductByCategory (cat_id As String)
-	Dim con As SQL = pool.GetConnection
+	Dim con As SQL = OpenDB
 	Dim strSQL As String
 	Try
 		strSQL = Main.queries.Get("GET_CATEGORY_BY_ID")
@@ -249,11 +265,11 @@ Sub PostProductByCategory (cat_id As String)
 		LogDebug(LastException)
 		Utility.ReturnError("Error Execute Query", 422, Response)
 	End Try
-	If con <> Null And con.IsInitialized Then con.Close
+	CloseDB(con)
 End Sub
 
 Sub PutCategoryById (cat_id As String)
-	Dim con As SQL = pool.GetConnection
+	Dim con As SQL = OpenDB
 	Dim strSQL As String
 	Try
 		strSQL = Main.queries.Get("GET_CATEGORY_BY_ID")
@@ -274,11 +290,11 @@ Sub PutCategoryById (cat_id As String)
 		LogDebug(LastException)
 		Utility.ReturnError("Error Execute Query", 422, Response)
 	End Try
-	If con <> Null And con.IsInitialized Then con.Close
+	CloseDB(con)
 End Sub
 
 Sub PutProductByCategoryAndId (cat_id As String, id As String)
-	Dim con As SQL = pool.GetConnection
+	Dim con As SQL = OpenDB
 	Dim strSQL As String
 	Try
 		strSQL = Main.queries.Get("GET_PRODUCT_BY_CATEGORY_AND_ID")
@@ -299,11 +315,11 @@ Sub PutProductByCategoryAndId (cat_id As String, id As String)
 		LogDebug(LastException)
 		Utility.ReturnError("Error Execute Query", 422, Response)
 	End Try
-	If con <> Null And con.IsInitialized Then con.Close
+	CloseDB(con)
 End Sub
 
 Sub DeleteCategoryById (cat_id As String)
-	Dim con As SQL = pool.GetConnection
+	Dim con As SQL = OpenDB
 	Dim strSQL As String
 	Try
 		strSQL = Main.queries.Get("GET_CATEGORY_BY_ID")
@@ -319,11 +335,11 @@ Sub DeleteCategoryById (cat_id As String)
 		LogDebug(LastException)
 		Utility.ReturnError("Error Execute Query", 422, Response)
 	End Try
-	If con <> Null And con.IsInitialized Then con.Close
+	CloseDB(con)
 End Sub
 
 Sub DeleteProductsByCategoryAndId (cat_id As String, id As String)
-	Dim con As SQL = pool.GetConnection
+	Dim con As SQL = OpenDB
 	Dim strSQL As String
 	Try
 		strSQL = Main.queries.Get("GET_PRODUCT_BY_CATEGORY_AND_ID")
@@ -339,5 +355,5 @@ Sub DeleteProductsByCategoryAndId (cat_id As String, id As String)
 		LogDebug(LastException)
 		Utility.ReturnError("Error Execute Query", 422, Response)
 	End Try
-	If con <> Null And con.IsInitialized Then con.Close
+	CloseDB(con)
 End Sub
