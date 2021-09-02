@@ -5,7 +5,7 @@ Type=StaticCode
 Version=8.1
 @EndOfDesignText@
 ' Utility Code module
-' Version 1.00
+' Version 1.08
 Sub Process_Globals
 	Private const CONTENT_TYPE_JSON As String = "application/json"
 	Private const CONTENT_TYPE_HTML As String = "text/html"
@@ -78,21 +78,25 @@ Public Sub ReturnError (Error As String, Code As Int, resp As ServletResponse)
 	resp.Write(Map2Json(CreateMap("s": "error", "m": Null, "r": Result, "e": Error)))
 End Sub
 
-Public Sub ReturnSuccess (Data As Map, resp As ServletResponse)
+Public Sub ReturnSuccess (Data As Map, Code As Int, resp As ServletResponse)
 	If Data.IsInitialized = False Then Data.Initialize
 	Dim Result As List
 	Result.Initialize
 	Result.Add(Data)
 	Dim Map1 As Map = CreateMap("s": "ok", "m": "success", "r": Result, "e": Null)
 	resp.ContentType = CONTENT_TYPE_JSON
-	resp.Status = 200
+	resp.Status = Code
 	resp.Write(Map2Json(Map1))
 End Sub
 
-Public Sub ReturnSuccess2 (Data As List, resp As ServletResponse)
+Public Sub ReturnSuccess2 (Data As List, Code As Int, resp As ServletResponse)
 	If Data.IsInitialized = False Then Data.Initialize
 	Dim Map1 As Map = CreateMap("s": "ok", "m": "success", "r": Data, "e": Null)
 	resp.ContentType = CONTENT_TYPE_JSON
-	resp.Status = 200
+	resp.Status = Code
 	resp.Write(Map2Json(Map1))
+End Sub
+
+Public Sub ReturnLocation (Location As String, resp As ServletResponse) ' Code = 302
+	resp.SendRedirect(Location)
 End Sub

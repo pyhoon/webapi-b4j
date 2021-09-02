@@ -74,7 +74,7 @@ Sub Search (SearchForText As String)
 			Next
 			List1.Add(Map2)
 		Loop
-		Utility.ReturnSuccess2(List1, Response)
+		Utility.ReturnSuccess2(List1, 200, Response)
 	Catch
 		LogDebug(LastException)
 		Utility.ReturnError("Error Execute Query", 422, Response)

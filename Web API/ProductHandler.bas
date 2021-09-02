@@ -175,7 +175,11 @@ Sub GetCategories (cat_id As String)
 			Next
 			List1.Add(Map2)
 		Loop
-		Utility.ReturnSuccess2(List1, Response)
+		If List1.Size = 0 Then
+			Utility.ReturnError("Category Not Found", 404, Response)
+		Else
+			Utility.ReturnSuccess2(List1, 200, Response)
+		End If
 	Catch
 		LogDebug(LastException)
 		Utility.ReturnError("Error Execute Query", 422, Response)
@@ -211,7 +215,11 @@ Sub GetProductsByCategories (cat_id As String, id As String)
 			Next
 			List1.Add(Map2)
 		Loop
-		Utility.ReturnSuccess2(List1, Response)
+		If List1.Size = 0 Then
+			Utility.ReturnError("Product Not Found", 404, Response)
+		Else
+			Utility.ReturnSuccess2(List1, 200, Response)
+		End If
 	Catch
 		LogDebug(LastException)
 		Utility.ReturnError("Error Execute Query", 422, Response)
@@ -231,8 +239,26 @@ Sub PostCategory
 				Utility.ReturnError("Category Already Exist", 409, Response)
 			Else
 				strSQL = Main.queries.Get("ADD_NEW_CATEGORY")
+				con.BeginTransaction
 				con.ExecNonQuery2(strSQL, Array As String(data.Get("name")))
-				Utility.ReturnSuccess(CreateMap("result": "success"), Response)
+				strSQL = Main.queries.Get("GET_LAST_INSERT_ID")
+				Dim NewId As Int = con.ExecQuerySingleResult(strSQL)
+				strSQL = Main.queries.Get("GET_CATEGORY_BY_ID")
+				Dim res As ResultSet = con.ExecQuery2(strSQL, Array As String(NewId))
+				con.TransactionSuccessful
+				Dim List1 As List
+				List1.Initialize
+				Do While res.NextRow
+					Dim Map2 As Map
+					Map2.Initialize
+					For i = 0 To res.ColumnCount - 1
+						Map2.Put(res.GetColumnName(i), res.GetString2(i))
+					Next
+					List1.Add(Map2)
+				Loop				
+				Utility.ReturnSuccess2(List1, 201, Response)
+				'Dim URL As String = $"${Main.ROOT_URL}${Main.ROOT_PATH}category/${NewId}"$
+				'Utility.ReturnLocation(URL, 201, Response)				
 			End If
 		Else
 			Utility.ReturnError("Bad Request", 400, Response)
@@ -254,13 +280,31 @@ Sub PostProductByCategory (cat_id As String)
 			Dim data As Map = Utility.RequestData(Request)
 			If data.IsInitialized Then
 				strSQL = Main.queries.Get("ADD_NEW_PRODUCT_BY_CATEGORY")
+				con.BeginTransaction
 				con.ExecNonQuery2(strSQL, Array As String(cat_id, data.Get("code"), data.Get("name"), data.Get("price")))
-				Utility.ReturnSuccess(CreateMap("result": "success"), Response)
+				strSQL = Main.queries.Get("GET_LAST_INSERT_ID")
+				Dim NewId As Int = con.ExecQuerySingleResult(strSQL)
+				strSQL = Main.queries.Get("GET_PRODUCT_BY_CATEGORY_AND_ID")
+				Dim res As ResultSet = con.ExecQuery2(strSQL, Array As String(cat_id, NewId))
+				con.TransactionSuccessful
+				Dim List1 As List
+				List1.Initialize
+				Do While res.NextRow
+					Dim Map2 As Map
+					Map2.Initialize
+					For i = 0 To res.ColumnCount - 1
+						Map2.Put(res.GetColumnName(i), res.GetString2(i))
+					Next
+					List1.Add(Map2)
+				Loop
+				Utility.ReturnSuccess2(List1, 201, Response)
+				'Dim URL As String = $"${Main.ROOT_URL}${Main.ROOT_PATH}category/${cat_id}/${NewId}"$
+				'Utility.Returnlocation(URL, 201, Response)
 				Return
 			End If
 		Else
 			Utility.ReturnError("Category Not Found", 404, Response)
-		End If		
+		End If
 	Catch
 		LogDebug(LastException)
 		Utility.ReturnError("Error Execute Query", 422, Response)
@@ -279,7 +323,7 @@ Sub PutCategoryById (cat_id As String)
 			If data.IsInitialized Then
 				strSQL = Main.queries.Get("EDIT_CATEGORY_BY_ID")
 				con.ExecNonQuery2(strSQL, Array As Object(data.Get("name"), cat_id))
-				Utility.ReturnSuccess(CreateMap("result": "success"), Response)
+				Utility.ReturnSuccess(CreateMap("result": "success"), 200, Response)
 			Else
 				Utility.ReturnError("Bad Request", 400, Response)
 			End If
@@ -304,7 +348,7 @@ Sub PutProductByCategoryAndId (cat_id As String, id As String)
 			If data.IsInitialized Then
 				strSQL = Main.queries.Get("EDIT_PRODUCT_BY_CATEGORY_AND_ID")
 				con.ExecNonQuery2(strSQL, Array As Object(cat_id, data.Get("code"), data.Get("name"), data.Get("price"), cat_id, id))
-				Utility.ReturnSuccess(CreateMap("result": "success"), Response)
+				Utility.ReturnSuccess(CreateMap("result": "success"), 200, Response)
 			Else
 				Utility.ReturnError("Bad Request", 400, Response)
 			End If
@@ -327,7 +371,7 @@ Sub DeleteCategoryById (cat_id As String)
 		If res.NextRow Then
 			strSQL = Main.queries.Get("REMOVE_CATEGORY_BY_ID")
 			con.ExecNonQuery2(strSQL, Array As Int(cat_id))
-			Utility.ReturnSuccess(CreateMap("result": "success"), Response)
+			Utility.ReturnSuccess(CreateMap("result": "success"), 200, Response)
 		Else
 			Utility.ReturnError("Category Not Found", 404, Response)
 		End If
@@ -347,7 +391,7 @@ Sub DeleteProductsByCategoryAndId (cat_id As String, id As String)
 		If res.NextRow Then
 			strSQL = Main.queries.Get("REMOVE_PRODUCT_BY_CATEGORY_AND_ID")
 			con.ExecNonQuery2(strSQL, Array As Int(cat_id, id))
-			Utility.ReturnSuccess(CreateMap("result": "success"), Response)
+			Utility.ReturnSuccess(CreateMap("result": "success"), 200, Response)
 		Else
 			Utility.ReturnError("Product Not Found", 404, Response)
 		End If
