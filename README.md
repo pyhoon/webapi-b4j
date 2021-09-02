@@ -33,3 +33,7 @@ Make sure you are using the correct version of connector.
 **YouTube:**
 
 [![Alt text](https://img.youtube.com/vi/Y-1HDR2k_fE/0.jpg)](https://youtu.be/Y-1HDR2k_fE)
+
+Made with ❤ in B4X
+
+Download and Develop with B4J for FREE: https://www.b4x.com/b4j.html
