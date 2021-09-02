@@ -30,5 +30,6 @@ Make sure you are using the correct version of connector.
 **Preview:**
 <img src="https://github.com/pyhoon/webapi-b4j/raw/main/Preview/web-api.png" title="Web API" />
 
-**Video**
-https://youtu.be/Y-1HDR2k_fE
+**YouTube:**
+
+[![Alt text](https://img.youtube.com/vi/Y-1HDR2k_fE/0.jpg)](https://youtu.be/Y-1HDR2k_fE)
