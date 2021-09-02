@@ -37,19 +37,19 @@
                         <tbody>
                             <tr>
                                 <td>List all categories</td>
-                                <td class="text-center">GET</td>
+                                <td class="text-center text-success">GET</td>
                                 <td></td>
                                 <td><a href="$ROOT_URL$$ROOT_PATH$category" target="_blank">/category</a></td>
                             </tr>
                             <tr>
                                 <td>Get a category by id</td>
-                                <td class="text-center">GET</td>
+                                <td class="text-center text-success">GET</td>
                                 <td></td>
                                 <td><a href="$ROOT_URL$$ROOT_PATH$category/2" target="_blank">/category/{cat_id}</a></td>
                             </tr>                            
                             <tr>
                                 <td>Add a new category</td>
-                                <td class="text-center">POST</td>
+                                <td class="text-center text-warning">POST</td>
                                 <td>{<br>
                                     &nbsp; "name": "category_name"<br>
                                 }</td>
@@ -57,7 +57,7 @@
                             </tr>
                             <tr>
                                 <td>Update existing category by id</td>
-                                <td class="text-center">PUT</td>
+                                <td class="text-center text-primary">PUT</td>
                                 <td>{<br>
                                     &nbsp; "name": "category_name"<br>
                                 }</td>
@@ -65,7 +65,7 @@
                             </tr>
                             <tr>
                                 <td>Delete existing category by id</td>
-                                <td class="text-center">DELETE</td>
+                                <td class="text-center text-danger">DELETE</td>
                                 <td></td>
                                 <td>/category/{cat_id}</td>
                             </tr>
@@ -92,19 +92,19 @@
                         <tbody>
                             <tr>
                                 <td>List all products by category id</td>
-                                <td class="text-center">GET</td>
+                                <td class="text-center text-success">GET</td>
                                 <td></td>
                                 <td><a href="$ROOT_URL$$ROOT_PATH$category/2/product" target="_blank">/category/{cat_id}/product</a></td>
                             </tr>
                             <tr>
                                 <td>Get a product by category and id</td>
-                                <td class="text-center">GET</td>
+                                <td class="text-center text-success">GET</td>
                                 <td></td>
                                 <td><a href="$ROOT_URL$$ROOT_PATH$category/2/product/3" target="_blank">/category/{cat_id}/product/{id}</a></td>
                             </tr>
                             <tr>
                                 <td>Add a new product by category id</td>
-                                <td class="text-center">POST</td>
+                                <td class="text-center text-warning">POST</td>
                                 <td>{<br>
                                     &nbsp; "code": "product_code",<br>
                                     &nbsp; "name": "product_name",<br>
@@ -114,7 +114,7 @@
                             </tr>
                             <tr>
                                 <td>Update existing product by category id and id</td>
-                                <td class="text-center">PUT</td>
+                                <td class="text-center text-primary">PUT</td>
                                 <td>{<br>
                                     &nbsp; "code": "product_code",<br>
                                     &nbsp; "name": "product_name",<br>
@@ -124,7 +124,7 @@
                             </tr>
                             <tr>
                                 <td>Delete existing product by category id and id</td>
-                                <td class="text-center">DELETE</td>
+                                <td class="text-center text-danger">DELETE</td>
                                 <td></td>
                                 <td>/category/{cat_id}/product/{id}</td>
                             </tr>
