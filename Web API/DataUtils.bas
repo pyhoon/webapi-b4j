@@ -5,7 +5,7 @@ Type=StaticCode
 Version=9.1
 @EndOfDesignText@
 ' DataUtils Code module
-' Version 1.08
+' Version 1.09
 Sub Process_Globals
 	Dim pool As ConnectionPool
 End Sub
@@ -18,10 +18,8 @@ Public Sub CreateDatabaseIfNotExist
 		' SQLite
 		If Main.Conn.DbType.EqualsIgnoreCase("sqlite") Then
 			Log("Checking database...")
-			
 			If File.Exists(File.DirApp, DBName) Then
-				Log("Database found!")
-				'DB.InitializeSQLite(File.DirApp, DBName, False)				
+				Log("Database found!")		
 			Else
 				Log("Database not found!")
 				Log("Creating database...")
