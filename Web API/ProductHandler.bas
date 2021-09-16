@@ -347,7 +347,8 @@ Sub PutProductByCategoryAndId (cat_id As String, id As String)
 			Dim data As Map = Utility.RequestData(Request)
 			If data.IsInitialized Then
 				strSQL = Main.queries.Get("EDIT_PRODUCT_BY_CATEGORY_AND_ID")
-				con.ExecNonQuery2(strSQL, Array As Object(cat_id, data.Get("code"), data.Get("name"), data.Get("price"), cat_id, id))
+				'con.ExecNonQuery2(strSQL, Array As Object(cat_id, data.Get("code"), data.Get("name"), data.Get("price"), cat_id, id))
+				con.ExecNonQuery2(strSQL, Array As Object(data.Get("cat_id"), data.Get("code"), data.Get("name"), data.Get("price"), cat_id, id))
 				Utility.ReturnSuccess(CreateMap("result": "success"), 200, Response)
 			Else
 				Utility.ReturnError("Bad Request", 400, Response)
