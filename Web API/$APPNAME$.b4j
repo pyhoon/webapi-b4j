@@ -26,7 +26,7 @@ Version=9.1
 @EndOfDesignText@
 ' Name: 		Web API Lite
 ' Description: 	Non-UI application (console / server application)
-' Version: 		1.08
+' Version: 		1.09
 
 #Region Project Attributes 
 	#CommandLineArgs:
@@ -41,7 +41,7 @@ Version=9.1
 #End Region
 
 Sub Process_Globals
-	Public const VERSION As Float = 1.08
+	Public const VERSION As Float = 1.09
 	Public srvr As Server
 	Public ROOT_PATH As String
 	Public ROOT_URL As String
@@ -126,12 +126,11 @@ Sub AppStart (Args() As String)
 	srvr.AddHandler("", "HomeHandler", False)
 	
 	' Add more handlers here
-	srvr.AddHandler(ROOT_PATH & "default/*", "DefaultHandler", False)
+	'srvr.AddHandler(ROOT_PATH & "default/*", "DefaultHandler", False)
 	srvr.AddHandler(ROOT_PATH & "category/*", "ProductHandler", False)
 	
 	' Add CrossOriginFilter
 	'ConfigureCORS("/*", "*", "*", "*")
-	'ConfigureCORS(ROOT_PATH & "category/*", "http://127.0.0.1:19800", "", "") ' test.html
 	ConfigureCORS(ROOT_PATH & "category/*", "*", "", "")
 	
 	' Server starts
