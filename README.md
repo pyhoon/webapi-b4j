@@ -16,7 +16,7 @@ A boilerplate for creating CRUD based Web API.
 2. Open B4J and create a new project with "Web API" template. Give your project any name you like, for e.g. WebAPI
 3. Run the project in Debug or Release mode. You will see something like this in the Logs:
 ```
-Web API server (version = 1.06) is running on port 19800
+Web API server (version = 1.09) is running on port 19800
 Open the following URL from your web browser
 http://127.0.0.1:19800/v1/
 ```
