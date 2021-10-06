@@ -10,13 +10,14 @@ A boilerplate for creating CRUD based Web API.
 - Separate SQL queries file (queries-mysql.ini and queries-sqlite.ini)
 - Sample database auto-generated for first run (Category and Product tables with dummy data)
 - Versioning (using ROOT_PATH in config.ini, set as "/" if you don't want versioning)
+- Auto generated documentation with API test.
 
 # How to use:
 1. Copy the "Web API.b4xtemplate" file into B4J platform Additional folder.
 2. Open B4J and create a new project with "Web API" template. Give your project any name you like, for e.g. WebAPI
 3. Run the project in Debug or Release mode. You will see something like this in the Logs:
 ```
-Web API server (version = 1.09) is running on port 19800
+Web API server (version = 1.10) is running on port 19800
 Open the following URL from your web browser
 http://127.0.0.1:19800/v1/
 ```
