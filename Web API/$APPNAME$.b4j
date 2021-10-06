@@ -1,9 +1,11 @@
 ﻿AppType=StandardJava
 Build1=Default,b4j.webapi
-File1=index.html
-File2=main.html
+File1=help.html
+File2=index.html
+File3=main.html
 FileGroup1=Default Group
 FileGroup2=Default Group
+FileGroup3=Default Group
 Group=Default Group
 Library1=byteconverter
 Library2=jcore
@@ -14,19 +16,20 @@ Library6=javaobject
 Module1=CorsFilter
 Module2=DataUtils
 Module3=DefaultHandler
-Module4=HomeHandler
-Module5=HttpsFilter
-Module6=ProductHandler
-Module7=Utility
-Module8=WebUtils
-NumberOfFiles=2
+Module4=HelpHandler
+Module5=HomeHandler
+Module6=HttpsFilter
+Module7=ProductHandler
+Module8=Utility
+Module9=WebUtils
+NumberOfFiles=3
 NumberOfLibraries=6
-NumberOfModules=8
+NumberOfModules=9
 Version=9.1
 @EndOfDesignText@
 ' Name: 		Web API Lite
 ' Description: 	Non-UI application (console / server application)
-' Version: 		1.09
+' Version: 		1.10
 
 #Region Project Attributes 
 	#CommandLineArgs:
@@ -41,7 +44,7 @@ Version=9.1
 #End Region
 
 Sub Process_Globals
-	Public const VERSION As Float = 1.09
+	Public const VERSION As String = "1.10"
 	Public srvr As Server
 	Public ROOT_PATH As String
 	Public ROOT_URL As String
@@ -126,17 +129,21 @@ Sub AppStart (Args() As String)
 	srvr.AddHandler("", "HomeHandler", False)
 	
 	' Add more handlers here
-	'srvr.AddHandler(ROOT_PATH & "default/*", "DefaultHandler", False)
+	'srvr.AddHandler(ROOT_PATH & "topic/*", "DefaultHandler", False)
 	srvr.AddHandler(ROOT_PATH & "category/*", "ProductHandler", False)
+	srvr.AddHandler(ROOT_PATH & "help/*", "HelpHandler", False)
 	
 	' Add CrossOriginFilter
-	'ConfigureCORS("/*", "*", "*", "*")
-	ConfigureCORS(ROOT_PATH & "category/*", "*", "", "")
+	ConfigureCORS("/*", "*", "*", "*")
+	'ConfigureCORS(ROOT_PATH & "topic/*", "*", "", "")
+	'ConfigureCORS(ROOT_PATH & "category/*", "*", "", "")
+	'ConfigureCORS(ROOT_PATH & "help/*", "*", "", "")
 	
 	' Server starts
 	srvr.Start
 	
-	Log($"Web API server (version = $1.2{VERSION}) is running on port ${srvr.Port}"$)
+	'Log($"Web API server (version = $1.2{VERSION}) is running on port ${srvr.Port}"$)
+	Log($"Web API server (version = ${VERSION}) is running on port ${srvr.Port}"$)
 	Log($"Open the following URL from your web browser"$)
 	Log(ROOT_URL & ROOT_PATH)
 	' Open a web browser and navigate to: http://127.0.0.1:19800/v1/
@@ -150,7 +157,7 @@ Public Sub OpenConnection (pool As ConnectionPool) As ConnectionPool
 		Dim jo As JavaObject = pool
 		jo.RunMethod("setMaxPoolSize", Array(Conn.MaxPoolSize))
 	Catch
-		LogDebug(LastException)
+		LogError(LastException)
 	End Try
 	Return pool
 End Sub
