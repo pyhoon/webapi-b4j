@@ -25,7 +25,7 @@ http://127.0.0.1:19800/v1/
 5. To connect to MySQL server, go to Objects folder and open "config.ini".
 6. Edit the root password at line #42 (second last line). Save the file.
 7. In B4J project, comment the line '#AdditionalJar: sqlite-jdbc-3.36.0.2 and uncomment the line #AdditionalJar: mysql-connector-java-5.1.49-bin.​
-Make sure you are using the correct version of connector.
+ (Make sure you are using the correct version of connector)
 8. Follow step #3 above.
 
 **Preview:**
