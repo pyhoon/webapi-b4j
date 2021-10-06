@@ -10,21 +10,90 @@
   <link rel="stylesheet" href="$ROOT_URL$/assets/css/bootstrap.min.css">
   <link rel="stylesheet" href="$ROOT_URL$/assets/css/fontawesome.min.css">
   <link rel="stylesheet" href="$ROOT_URL$/assets/css/solid.min.css">
+  <script src="$ROOT_URL$/assets/js/jquery.min.js"></script>
+  <script src="$ROOT_URL$/assets/js/bootstrap.bundle.min.js"></script>
+  <script src="$ROOT_URL$/assets/js/webapisearch.js"></script> 
   <style type="text/css">
     body {
       font-family: Arial, Helvetica, Tahoma, Times New Roman;
     }
+
+    button {
+      border-radius: 3px;
+    }
+
+    button:focus {
+      outline: 0px;
+      /*border-radius: 3px;*/
+    }
+
+    .collapsible {
+      background-color: #dedede;
+      color: black;
+      cursor: pointer;
+      padding: 8px;
+      width: 100%;
+      border: none;
+      text-align: left;
+      font-size: 15px;
+      margin-bottom: 3px;
+    }
+
+    .active, .collapsible:hover {
+      background-color: #cdcdcd;
+    }
+
+    .collapsible:after {
+      content: '\002B';
+      color: black;
+      font-weight: bold;
+      float: right;
+      margin-left: 5px;
+      border: none;
+    }
+
+    .active:after {
+      content: "\2212";
+    }
+
+    .details {
+      font-size: 0.8em;
+      padding: 0 18px;
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.2s ease-out;
+      background-color: #f1f1f1;
+    }
   </style>
 </head>
 <body class="bg-light">
-  <nav class="navbar navbar-expand navbar-dark bg-primary">
+  <nav class="navbar navbar-expand navbar-dark bg-primary pt-1 pb-1">
     <a class="text-white mr-3" href="#"><i class="fas fa-rocket"></i></a>
     <a class="navbar-brand font-weight-bold" href="$ROOT_URL$$ROOT_PATH$">$APP_TRADEMARK$</a>
+    <div class="navbar-collapse">
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link mr-3" href="$ROOT_URL$$ROOT_PATH$help"><i class="fas fa-question-circle" title="Help"></i></a>
+            </li>
+        </ul>
+    </div>
   </nav>
   @VIEW@
-  <div class="footer small m-4"><caption>$APP_COPYRIGHT$</caption></div>
-  <script src="$ROOT_URL$/assets/js/jquery.min.js"></script>
-  <script src="$ROOT_URL$/assets/js/bootstrap.bundle.min.js"></script>
-  <script src="$ROOT_URL$/assets/js/webapisearch.js"></script>
+  <div class="small mb-2 ml-4">Local time: <span id="datetime"></span>
+    <script type="text/javascript">
+      var datetime = document.getElementById('datetime');
+      var d = new Date();
+      var formatted = d.getFullYear() + '-' + 
+      ('0' + (d.getMonth()+1)).slice(-2) + '-' + 
+      ('0' + d.getDate()).slice(-2) + ' ' +
+      ('0' + d.getHours()).slice(-2) + ':' +
+      ('0' + d.getMinutes()).slice(-2) + ':' +
+      ('0' + d.getSeconds()).slice(-2);
+      datetime.innerHTML = formatted;
+    </script>
+  </div>
+  <footer class="footer footer-dark bg-primary pl-4 pt-2 pb-2">
+  <div class="footer small text-white text-center"><caption>$APP_COPYRIGHT$</caption></div>
+  </footer>
 </body>
 </html>
