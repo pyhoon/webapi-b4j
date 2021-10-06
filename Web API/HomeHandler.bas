@@ -5,6 +5,7 @@ Type=Class
 Version=8.1
 @EndOfDesignText@
 ' Home Handler class
+' Version 1.10
 Sub Class_Globals
 	Dim Request As ServletRequest
 	Dim Response As ServletResponse
@@ -15,7 +16,7 @@ Public Sub Initialize
 
 End Sub
 
-Sub Handle(req As ServletRequest, resp As ServletResponse)
+Sub Handle (req As ServletRequest, resp As ServletResponse)
 	Request = req
 	Response = resp
 	
@@ -76,8 +77,12 @@ Sub Search (SearchForText As String)
 		Loop
 		Utility.ReturnSuccess2(List1, 200, Response)
 	Catch
-		LogDebug(LastException)
-		Utility.ReturnError("Error Execute Query", 422, Response)
+		LogError(LastException)
+		'Utility.ReturnError("Error Execute Query", 422, Response)
+		Dim HRM As HttpResponseMessage
+		HRM.ResponseCode = 422
+		HRM.ResponseError = "Error Execute Query"
+		Utility.ReturnHttpResponse(HRM, Response)
 	End Try
 	CloseDB(con)
 End Sub

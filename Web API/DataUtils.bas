@@ -5,7 +5,7 @@ Type=StaticCode
 Version=9.1
 @EndOfDesignText@
 ' DataUtils Code module
-' Version 1.09
+' Version 1.10
 Sub Process_Globals
 	Dim pool As ConnectionPool
 End Sub
