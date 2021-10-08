@@ -37,3 +37,5 @@ http://127.0.0.1:19800/v1/
 Made with ❤ in B4X
 
 Download and Develop with B4J for FREE: https://www.b4x.com/b4j.html
+
+B4X Client app: https://github.com/pyhoon/webapi-client-b4x
