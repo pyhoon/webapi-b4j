@@ -1,15 +1,15 @@
 ﻿B4J=true
-Group=Default Group
+Group=Handlers
 ModulesStructureVersion=1
 Type=Class
 Version=9.1
 @EndOfDesignText@
 ' Default Handler class
-' Version 1.10
+' Version 1.11
 Sub Class_Globals
-	Dim Literals() As String = Array As String("topic", ":slug") 'ignore
-	Dim Elements() As String
-	Dim Response As ServletResponse
+	Private Literals() As String = Array As String("topic", "hello-world") 'ignore
+	Private Elements() As String
+	Private Response As ServletResponse
 End Sub
 
 Public Sub Initialize
@@ -28,7 +28,8 @@ Sub Handle(req As ServletRequest, resp As ServletResponse)
 End Sub
 
 Public Sub GetTestSub (slug As String)
-	' #Desc2=Return default topic
+	' #Desc1 = Return hello-world topic
+	' #Desc2 = Return default topic
 	If slug = "" Then
 		Utility.ReturnSuccess(CreateMap("topic": "B4X (default)"), 200, Response)
 	Else
