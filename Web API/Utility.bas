@@ -5,7 +5,7 @@ Type=StaticCode
 Version=8.1
 @EndOfDesignText@
 ' Utility Code module
-' Version 1.10
+' Version 1.11
 Sub Process_Globals
 	Private const CONTENT_TYPE_JSON As String = "application/json"
 	Private const CONTENT_TYPE_HTML As String = "text/html"
