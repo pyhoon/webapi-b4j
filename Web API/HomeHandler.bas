@@ -5,11 +5,11 @@ Type=Class
 Version=8.1
 @EndOfDesignText@
 ' Home Handler class
-' Version 1.10
+' Version 1.11
 Sub Class_Globals
-	Dim Request As ServletRequest
-	Dim Response As ServletResponse
-	Dim pool As ConnectionPool
+	Private Request As ServletRequest
+	Private Response As ServletResponse
+	Private HRM As HttpResponseMessage
 End Sub
 
 Public Sub Initialize
@@ -40,7 +40,7 @@ Private Sub ShowHomePage
 End Sub
 
 Sub Search (SearchForText As String)
-	Dim con As SQL = OpenDB
+	Dim con As SQL = Main.DB.GetConnection
 	Dim strSQL As String
 	Try
 		Dim keys() As String = Regex.Split2(" ", 2, SearchForText)
@@ -78,29 +78,10 @@ Sub Search (SearchForText As String)
 		Utility.ReturnSuccess2(List1, 200, Response)
 	Catch
 		LogError(LastException)
-		'Utility.ReturnError("Error Execute Query", 422, Response)
-		Dim HRM As HttpResponseMessage
+		HRM.Initialize
 		HRM.ResponseCode = 422
 		HRM.ResponseError = "Error Execute Query"
 		Utility.ReturnHttpResponse(HRM, Response)
 	End Try
-	CloseDB(con)
-End Sub
-
-Sub OpenDB As SQL
-	If Main.Conn.DbType.EqualsIgnoreCase("mysql") Then
-		pool = Main.OpenConnection(pool)
-		Return pool.GetConnection
-	End If
-	If Main.Conn.DbType.EqualsIgnoreCase("sqlite") Then
-		Return Main.OpenSQLiteDB
-	End If
-	Return Null
-End Sub
-
-Sub CloseDB (con As SQL)
-	If con <> Null And con.IsInitialized Then con.Close
-	If Main.Conn.DbType.EqualsIgnoreCase("mysql") Then
-		If pool.IsInitialized Then pool.ClosePool
-	End If
+	Main.DB.CloseDB(con)
 End Sub
