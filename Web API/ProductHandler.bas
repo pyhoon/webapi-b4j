@@ -5,13 +5,13 @@ Type=Class
 Version=9.1
 @EndOfDesignText@
 ' Product Handler class
-' Version 1.10
+' Version 1.11
 Sub Class_Globals
-	Dim Request As ServletRequest
-	Dim Response As ServletResponse
-	Dim pool As ConnectionPool
-	Dim Elements() As String
-	Dim Literals() As String = Array As String("category", ":cid", "product", ":pid")
+	Private Request As ServletRequest
+	Private Response As ServletResponse
+	Private Elements() As String
+	Private Literals() As String = Array As String("category", ":cid", "product", ":pid")
+	Private HRM As HttpResponseMessage
 End Sub
 
 Public Sub Initialize
@@ -22,14 +22,13 @@ Sub Handle (req As ServletRequest, resp As ServletResponse)
 	Request = req
 	Response = resp
 	
+	HRM.Initialize
 	Elements = Regex.Split("/", req.RequestURI)
 	If CheckMaxElements = False Then
 		Utility.ReturnError("Bad Request", 400, Response)
 		Return
 	End If
 	If CheckAllowedVerb = False Then
-		'Utility.ReturnError("Method Not Allowed", 405, Response)
-		Dim HRM As HttpResponseMessage
 		HRM.ResponseCode = 405
 		HRM.ResponseError = "Method Not Allowed"
 		Utility.ReturnHttpResponse(HRM, Response)
@@ -47,28 +46,24 @@ Private Sub ProcessRequest
 
 					Case Main.Element.Parent ' /category
 						If Elements(Main.Element.Parent) = Literals(0) Then
-							'GetCategories("")
 							Utility.ReturnHttpResponse(GetCategories(0), Response)
 						Else
 							Utility.ReturnError("Bad Request", 400, Response)
 						End If
 					Case Main.Element.Parent_Id ' /category/{cat_id}
 						If Elements(Main.Element.Parent) = Literals(0) Then
-							'GetCategories(Elements(Main.Element.Parent_Id))
 							Utility.ReturnHttpResponse(GetCategories(Elements(Main.Element.Parent_Id)), Response)
 						Else
 							Utility.ReturnError("Bad Request", 400, Response)
 						End If
 					Case Main.Element.Child ' /category/{cat_id}/product
 						If Elements(Main.Element.Parent) = Literals(0) And Elements(Main.Element.Child) = Literals(2) Then
-							'GetProductsByCategories(Elements(Main.Element.Parent_Id), 0)
 							Utility.ReturnHttpResponse(GetProductsByCategories(Elements(Main.Element.Parent_Id), 0), Response)
 						Else
 							Utility.ReturnError("Bad Request", 400, Response)
 						End If
 					Case Main.Element.Child_Id ' /category/{cat_id}/product/{product_id}
 						If Elements(Main.Element.Parent) = Literals(0) And Elements(Main.Element.Child) = Literals(2) Then
-							'GetProductsByCategories(Elements(Main.Element.Parent_Id), Elements(Main.Element.Child_Id))
 							Utility.ReturnHttpResponse(GetProductsByCategories(Elements(Main.Element.Parent_Id), Elements(Main.Element.Child_Id)), Response)
 						Else
 							Utility.ReturnError("Bad Request", 400, Response)
@@ -80,14 +75,12 @@ Private Sub ProcessRequest
 				Select Case Elements.Length - 1
 					Case Main.Element.Parent ' /category
 						If Elements(Main.Element.Parent) = Literals(0) Then
-							'PostCategory
 							Utility.ReturnHttpResponse(PostCategory, Response)
 						Else
 							Utility.ReturnError("Bad Request", 400, Response)
 						End If
 					Case Main.Element.Child ' /category/{cat_id}/product
 						If Elements(Main.Element.Parent) = Literals(0) And Elements(Main.Element.Child) = Literals(2) Then
-							'PostProductByCategory(Elements(Main.Element.Parent_Id))
 							Utility.ReturnHttpResponse(PostProductByCategory(Elements(Main.Element.Parent_Id)), Response)
 						Else
 							Utility.ReturnError("Bad Request", 400, Response)
@@ -99,14 +92,12 @@ Private Sub ProcessRequest
 				Select Case Elements.Length - 1
 					Case Main.Element.Parent_Id ' /category/{cat_id}
 						If Elements(Main.Element.Parent) = Literals(0) Then
-							'PutCategoryById(Elements(Main.Element.Parent_Id))
 							Utility.ReturnHttpResponse(PutCategoryById(Elements(Main.Element.Parent_Id)), Response)
 						Else
 							Utility.ReturnError("Bad Request", 400, Response)
 						End If
 					Case Main.Element.Child_Id ' /category/{cat_id}/product/{product_id}
 						If Elements(Main.Element.Parent) = Literals(0) And Elements(Main.Element.Child) = Literals(2) Then
-							'PutProductByCategoryAndId(Elements(Main.Element.Parent_Id), Elements(Main.Element.Child_Id))
 							Utility.ReturnHttpResponse(PutProductByCategoryAndId(Elements(Main.Element.Parent_Id), Elements(Main.Element.Child_Id)), Response)
 						Else
 							Utility.ReturnError("Bad Request", 400, Response)
@@ -118,14 +109,12 @@ Private Sub ProcessRequest
 				Select Case Elements.Length - 1
 					Case Main.Element.Parent_Id ' /category/{cat_id}
 						If Elements(Main.Element.Parent) = Literals(0) Then
-							'DeleteCategoryById(Elements(Main.Element.PARENT_ID))
 							Utility.ReturnHttpResponse(DeleteCategoryById(Elements(Main.Element.PARENT_ID)), Response)
 						Else
 							Utility.ReturnError("Bad Request", 400, Response)
 						End If
 					Case Main.Element.Child_Id ' /category/{cat_id}/product/{product_id}
 						If Elements(Main.Element.Parent) = Literals(0) And Elements(Main.Element.Child) = Literals(2) Then
-							'DeleteProductsByCategoryAndId(Elements(Main.Element.Parent_Id), Elements(Main.Element.Child_Id))
 							Utility.ReturnHttpResponse(DeleteProductsByCategoryAndId(Elements(Main.Element.Parent_Id), Elements(Main.Element.Child_Id)), Response)
 						Else
 							Utility.ReturnError("Bad Request", 400, Response)
@@ -156,34 +145,14 @@ Private Sub CheckAllowedVerb As Boolean
 	Return True
 End Sub
 
-Sub OpenDB As SQL
-	If Main.Conn.DbType.EqualsIgnoreCase("mysql") Then
-		pool = Main.OpenConnection(pool)
-		Return pool.GetConnection
-	End If
-	If Main.Conn.DbType.EqualsIgnoreCase("sqlite") Then
-		Return Main.OpenSQLiteDB
-	End If
-	Return Null
-End Sub
-
-Sub CloseDB (con As SQL)
-	If con <> Null And con.IsInitialized Then con.Close
-	If Main.Conn.DbType.EqualsIgnoreCase("mysql") Then
-		If pool.IsInitialized Then pool.ClosePool
-	End If
-End Sub
-
 Public Sub GetCategories (cid As Int) As HttpResponseMessage
 	#region Documentation
 	' #Desc1 = Get a category by id
 	' #Desc2 = List all categories
 	' #Elems = 2
 	#End region
-	Dim con As SQL = OpenDB
+	Dim con As SQL = Main.DB.GetConnection
 	Dim strSQL As String
-	Dim HRM As HttpResponseMessage
-	HRM.Initialize
 	Try
 		If Elements.Length-1 = Main.Element.Parent_Id Then
 			strSQL = Main.queries.Get("GET_CATEGORY_BY_ID")
@@ -192,13 +161,6 @@ Public Sub GetCategories (cid As Int) As HttpResponseMessage
 			strSQL = Main.queries.Get("GET_ALL_CATEGORIES")
 			Dim res As ResultSet = con.ExecQuery(strSQL)
 		End If
-'		If cid = 0  Then
-'			strSQL = Main.queries.Get("GET_ALL_CATEGORIES")
-'			Dim res As ResultSet = con.ExecQuery(strSQL)
-'		Else
-'			strSQL = Main.queries.Get("GET_CATEGORY_BY_ID")
-'			Dim res As ResultSet = con.ExecQuery2(strSQL, Array As String(cid))
-'		End If
 		Dim List1 As List
 		List1.Initialize
 		Do While res.NextRow
@@ -209,7 +171,7 @@ Public Sub GetCategories (cid As Int) As HttpResponseMessage
 					Map2.Put(res.GetColumnName(i), res.GetInt2(i))
 				Else
 					Map2.Put(res.GetColumnName(i), res.GetString2(i))
-				End If				
+				End If
 			Next
 			List1.Add(Map2)
 		Loop
@@ -225,7 +187,7 @@ Public Sub GetCategories (cid As Int) As HttpResponseMessage
 		HRM.ResponseCode = 422
 		HRM.ResponseError = "Error Execute Query"
 	End Try
-	CloseDB(con)
+	Main.DB.CloseDB(con)
 	Return HRM
 End Sub
 
@@ -236,18 +198,14 @@ Sub PostCategory As HttpResponseMessage
 	' #Elems = 2
 	' #Body = {<br>&nbsp; "name": "category_name"<br>}
 	#End region
-	Dim con As SQL = OpenDB
+	Dim con As SQL = Main.DB.GetConnection
 	Dim strSQL As String
-	Dim HRM As HttpResponseMessage
-	HRM.Initialize
 	Try
 		Dim data As Map = Utility.RequestData(Request)
 		If data.IsInitialized Then
 			strSQL = Main.queries.Get("GET_ID_BY_CATEGORY_NAME")
 			Dim res As ResultSet = con.ExecQuery2(strSQL, Array As String(data.Get("name")))
 			If res.NextRow Then
-				'Utility.ReturnError("Category Already Exist", 409, Response)
-				Dim HRM As HttpResponseMessage
 				HRM.ResponseCode = 409
 				HRM.ResponseError = "Category Already Exist"
 				Utility.ReturnHttpResponse(HRM, Response)
@@ -274,36 +232,31 @@ Sub PostCategory As HttpResponseMessage
 					Next
 					List1.Add(Map2)
 				Loop				
-				'Utility.ReturnSuccess2(List1, 201, Response)
 				HRM.ResponseCode = 201
 				HRM.ResponseMessage = "Created"
 				HRM.ResponseData = List1
 			End If
 		Else
-			'Utility.ReturnError("Bad Request", 400, Response)
 			HRM.ResponseCode = 400
 		End If
 	Catch
 		LogError(LastException)
-		'Utility.ReturnError("Error Execute Query", 422, Response)
 		HRM.ResponseCode = 422
 		HRM.ResponseError = "Error Execute Query"
 	End Try
-	CloseDB(con)
+	Main.DB.CloseDB(con)
 	Return HRM
 End Sub
 
 Sub PutCategoryById (cid As Int) As HttpResponseMessage
 	#region Documentation
-	' #Desc1 =Update existing category by id
+	' #Desc1 = Update existing category by id
 	' #Desc2 = (N/A)
 	' #Elems = 2
 	' #Body = {<br>&nbsp; "name": "category_name"<br>}
 	#End region		
-	Dim con As SQL = OpenDB
+	Dim con As SQL = Main.DB.GetConnection
 	Dim strSQL As String
-	Dim HRM As HttpResponseMessage
-	HRM.Initialize
 	Try
 		strSQL = Main.queries.Get("GET_CATEGORY_BY_ID")
 		Dim res As ResultSet = con.ExecQuery2(strSQL, Array As String(cid))
@@ -312,24 +265,20 @@ Sub PutCategoryById (cid As Int) As HttpResponseMessage
 			If data.IsInitialized Then
 				strSQL = Main.queries.Get("EDIT_CATEGORY_BY_ID")
 				con.ExecNonQuery2(strSQL, Array As Object(data.Get("name"), cid))
-				'Utility.ReturnSuccess(CreateMap("result": "success"), 200, Response)
 				HRM.ResponseCode = 200
 			Else
-				'Utility.ReturnError("Bad Request", 400, Response)
 				HRM.ResponseCode = 400
 			End If
 		Else
-			'Utility.ReturnError("Category Not Found", 404, Response)
 			HRM.ResponseCode = 404
 			HRM.ResponseError = "Category Not Found"
 		End If
 	Catch
 		LogError(LastException)
-		'Utility.ReturnError("Error Execute Query", 422, Response)
 		HRM.ResponseCode = 422
 		HRM.ResponseError = "Error Execute Query"
 	End Try
-	CloseDB(con)
+	Main.DB.CloseDB(con)
 	Return HRM
 End Sub
 
@@ -339,30 +288,25 @@ Sub DeleteCategoryById (cid As Int) As HttpResponseMessage
 	' #Desc2 = (N/A)
 	' #Elems = 2
 	#End region	
-	Dim con As SQL = OpenDB
+	Dim con As SQL = Main.DB.GetConnection
 	Dim strSQL As String
-	Dim HRM As HttpResponseMessage
-	HRM.Initialize
 	Try
 		strSQL = Main.queries.Get("GET_CATEGORY_BY_ID")
 		Dim res As ResultSet = con.ExecQuery2(strSQL, Array As Int(cid))
 		If res.NextRow Then
 			strSQL = Main.queries.Get("REMOVE_CATEGORY_BY_ID")
 			con.ExecNonQuery2(strSQL, Array As Int(cid))
-			'Utility.ReturnSuccess(CreateMap("result": "success"), 200, Response)
 			HRM.ResponseCode = 200
 		Else
-			'Utility.ReturnError("Category Not Found", 404, Response)
 			HRM.ResponseCode = 404
 			HRM.ResponseError = "Category Not Found"
 		End If
 	Catch
 		LogError(LastException)
-		'Utility.ReturnError("Error Execute Query", 422, Response)
 		HRM.ResponseCode = 422
 		HRM.ResponseError = "Error Execute Query"
 	End Try
-	CloseDB(con)
+	Main.DB.CloseDB(con)
 	Return HRM
 End Sub
 
@@ -372,10 +316,8 @@ Public Sub GetProductsByCategories (cid As Int, pid As Int) As HttpResponseMessa
 	' #Desc2 = List all products by category id
 	' #Elems = 4
 	#End region
-	Dim con As SQL = OpenDB
+	Dim con As SQL = Main.DB.GetConnection
 	Dim strSQL As String
-	Dim HRM As HttpResponseMessage
-	HRM.Initialize
 	Dim List1 As List
 	List1.Initialize
 	Try
@@ -401,21 +343,18 @@ Public Sub GetProductsByCategories (cid As Int, pid As Int) As HttpResponseMessa
 			List1.Add(Map2)
 		Loop
 		If List1.Size > 0 Then
-			'Utility.ReturnSuccess2(List1, 200, Response)
 			HRM.ResponseCode = 200
 			HRM.ResponseData = List1
 		Else
-			'Utility.ReturnError("Category Not Found", 404, Response)
 			HRM.ResponseCode = 404
 			HRM.ResponseError = "Product Not Found"
 		End If
 	Catch
 		LogError(LastException)
-		'Utility.ReturnError("Error Execute Query", 422, Response)
 		HRM.ResponseCode = 422
 		HRM.ResponseError = "Error Execute Query"
 	End Try
-	CloseDB(con)
+	Main.DB.CloseDB(con)
 	Return HRM
 End Sub
 
@@ -426,10 +365,8 @@ Sub PostProductByCategory (cid As Int) As HttpResponseMessage
 	' #Desc2 = Add a new product by category id
 	' #Elems = 4
 	#End region	
-	Dim con As SQL = OpenDB
+	Dim con As SQL = Main.DB.GetConnection
 	Dim strSQL As String
-	Dim HRM As HttpResponseMessage
-	HRM.Initialize
 	Try
 		strSQL = Main.queries.Get("GET_CATEGORY_BY_ID")
 		Dim res As ResultSet = con.ExecQuery2(strSQL, Array As String(cid))
@@ -460,33 +397,29 @@ Sub PostProductByCategory (cid As Int) As HttpResponseMessage
 					Next
 					List1.Add(Map2)
 				Loop
-				'Utility.ReturnSuccess2(List1, 201, Response)
 				HRM.ResponseCode = 201
 				HRM.ResponseMessage = "Created"
 				HRM.ResponseData = List1
 			End If
 		Else
-			'Utility.ReturnError("Category Not Found", 404, Response)
 			HRM.ResponseCode = 404
 			HRM.ResponseError = "Category Not Found"
 		End If
 	Catch
 		LogError(LastException)
-		'Utility.ReturnError("Error Execute Query", 422, Response)
 		HRM.ResponseCode = 422
 		HRM.ResponseError = "Error Execute Query"
 	End Try
-	CloseDB(con)
+	Main.DB.CloseDB(con)
 	Return HRM
 End Sub
 
 Sub PutProductByCategoryAndId (cid As Int, pid As Int) As HttpResponseMessage
+	' #Desc1 = Update existing product by category and id
 	' #Elems = 4
 	' #Body = {<br>&nbsp; "cat_id": "new_cat_id",<br>&nbsp; "code": "product_code",<br>&nbsp; "name": "product_name",<br>&nbsp; "price": "product_price"<br>}
-	Dim con As SQL = OpenDB
+	Dim con As SQL = Main.DB.GetConnection
 	Dim strSQL As String
-	Dim HRM As HttpResponseMessage
-	HRM.Initialize
 	Try
 		strSQL = Main.queries.Get("GET_PRODUCT_BY_CATEGORY_AND_ID")
 		Dim res As ResultSet = con.ExecQuery2(strSQL, Array As String(cid, pid))
@@ -495,52 +428,44 @@ Sub PutProductByCategoryAndId (cid As Int, pid As Int) As HttpResponseMessage
 			If data.IsInitialized Then
 				strSQL = Main.queries.Get("EDIT_PRODUCT_BY_CATEGORY_AND_ID")
 				con.ExecNonQuery2(strSQL, Array As Object(data.Get("cat_id"), data.Get("code"), data.Get("name"), data.Get("price"), cid, pid))
-				'Utility.ReturnSuccess(CreateMap("result": "success"), 200, Response)
 				HRM.ResponseCode = 200
 			Else
-				'Utility.ReturnError("Bad Request", 400, Response)
 				HRM.ResponseCode = 400
 			End If
 		Else
-			'Utility.ReturnError("Product Not Found", 404, Response)
 			HRM.ResponseCode = 404
 			HRM.ResponseError = "Product Not Found"
 		End If
 	Catch
 		LogError(LastException)
-		'Utility.ReturnError("Error Execute Query", 422, Response)
 		HRM.ResponseCode = 422
 		HRM.ResponseError = "Error Execute Query"
 	End Try
-	CloseDB(con)
+	Main.DB.CloseDB(con)
 	Return HRM
 End Sub
 
 Sub DeleteProductsByCategoryAndId (cid As Int, pid As Int) As HttpResponseMessage
+	' #Desc1 = Delete product by category and id
 	' #Elems = 4
-	Dim con As SQL = OpenDB
+	Dim con As SQL = Main.DB.GetConnection
 	Dim strSQL As String
-	Dim HRM As HttpResponseMessage
-	HRM.Initialize
 	Try
 		strSQL = Main.queries.Get("GET_PRODUCT_BY_CATEGORY_AND_ID")
 		Dim res As ResultSet = con.ExecQuery2(strSQL, Array As Int(cid, pid))
 		If res.NextRow Then
 			strSQL = Main.queries.Get("REMOVE_PRODUCT_BY_CATEGORY_AND_ID")
 			con.ExecNonQuery2(strSQL, Array As Int(cid, pid))
-			'Utility.ReturnSuccess(CreateMap("result": "success"), 200, Response)
 			HRM.ResponseCode = 200
 		Else
-			'Utility.ReturnError("Product Not Found", 404, Response)
 			HRM.ResponseCode = 404
 			HRM.ResponseError = "Product Not Found"
 		End If
 	Catch
 		LogError(LastException)
-		'Utility.ReturnError("Error Execute Query", 422, Response)
 		HRM.ResponseCode = 422
 		HRM.ResponseError = "Error Execute Query"
 	End Try
-	CloseDB(con)
+	Main.DB.CloseDB(con)
 	Return HRM
 End Sub
