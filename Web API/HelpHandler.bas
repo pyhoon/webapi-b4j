@@ -5,7 +5,7 @@ Type=Class
 Version=9.1
 @EndOfDesignText@
 ' Help Handler class
-' Version 1.10
+' Version 1.11
 Sub Class_Globals
 	'Dim Request As ServletRequest
 	Dim Response As ServletResponse
@@ -76,7 +76,8 @@ Public Sub ReadProjectFile (FileDir As String, FileName As String) As String
 	IgnoredHandlers.Initialize
 	IgnoredHandlers.Add("HomeHandler")
 	IgnoredHandlers.Add("HelpHandler")
-	'IgnoredHandlers.Add("DefaultHandler")
+'	IgnoredHandlers.Add("DefaultHandler")
+	'IgnoredHandlers.Add("ProductHandler")
 	
 	Dim Handlers As List
 	Handlers.Initialize
@@ -278,21 +279,6 @@ Public Sub ReadProjectFile (FileDir As String, FileName As String) As String
 	#End If
 	Log($"Help page has been generated."$)
 	Return strHtml
-	' Note:
-	' Why I have DESC1 and DESC2?
-	' ===========================
-	' B4X currently doesn't support Method Overloading (optional parameters)
-	' Since I have a common GET method to return a specific row which requires an ID
-	' and the "second" method with same name to fetch a list of all items,
-	' I am using this trick to differentiate them so they both would appear as
-	' two different methods in documentation (with different descriptions and parameter)
-	' Example:
-	' GetCategories(3) -> load the row where id = 3
-	' GetCategories(0) -> load all rows where id is optional (zero or empty string depend on parameter type)
-	' For method that does not require a trailing ID (usually POST), set the #desc1 as (N/A)
-	' For other methods that mandatory require a trailing ID (PUT and DELETE), set the #desc2 as (N/A)
-	' By default, #desc2 is set as (N/A) and #desc1 is empty, it means the method with ID is always show by default (but no description)
-	' If you set both as (N/A) then the method would not appear in the documentation
 End Sub
 
 Public Sub GenerateLink (Literals() As String, Elems As Int, IDRequired As Boolean) As String
