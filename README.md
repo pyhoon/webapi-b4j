@@ -1,11 +1,13 @@
 # webapi-b4j
-A boilerplate for creating CRUD based Web API.
+Version: 1.11
 
-B4X Client app: https://github.com/pyhoon/webapi-client-b4x
+A boilerplate for creating CRUD based Web API.
 
 **Depends on following libraries:** ByteConverter, JavaObject, jServer, Json, jSQL
 
-# Features:
+**B4X Client app:** https://github.com/pyhoon/webapi-client-b4x
+
+# Features
 - CRUD based - REST-API style (GET, POST, PUT, DELETE)
 - Front-end (HTML, CSS, JS, Bootstrap)
 - Support **MySQL** and **SQLite** database (Can be modified for MS SQL or SQL Express)
@@ -14,7 +16,11 @@ B4X Client app: https://github.com/pyhoon/webapi-client-b4x
 - Versioning (using ROOT_PATH in config.ini, set as "/" if you don't want versioning)
 - Auto generated documentation with API test.
 
-# How to use:
+# Create B4X template from source
+1. Archive the files inside "Web API" directory as "Web API.zip" using WinRAR or 7-Zip
+2. Rename the extension from .zip to .b4xtemplate
+
+# How to use
 1. Copy the "Web API.b4xtemplate" file into B4J platform Additional folder.
 2. Open B4J and create a new project with "Web API" template. Give your project any name you like, for e.g. WebAPI
 3. Run the project in Debug or Release mode. You will see something like this in the Logs:
@@ -29,10 +35,10 @@ http://127.0.0.1:19800/v1/
 7. In B4J project, comment the line '#AdditionalJar: sqlite-jdbc-3.36.0.2 and uncomment the line #AdditionalJar: mysql-connector-java-5.1.49-bin. (Make sure you are using the correct version of connector)
 8. Follow step #3 above.
 
-**Preview:**
+**Preview**
 <img src="https://github.com/pyhoon/webapi-b4j/raw/main/Preview/web-api.png" title="Web API" />
 
-**YouTube:**
+**YouTube**
 
 [![Alt text](https://img.youtube.com/vi/Y-1HDR2k_fE/0.jpg)](https://youtu.be/Y-1HDR2k_fE)
 
