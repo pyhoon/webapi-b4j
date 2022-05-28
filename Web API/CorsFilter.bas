@@ -33,8 +33,10 @@ import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
-import javax.servlet.DispatcherType;
-import javax.servlet.Filter;
+// import javax.servlet.DispatcherType;
+// import javax.servlet.Filter;
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
 
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.FilterHolder;

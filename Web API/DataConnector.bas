@@ -5,7 +5,7 @@ Type=Class
 Version=9.1
 @EndOfDesignText@
 ' DataConnector class
-' Version 1.11
+' Version 1.12
 Sub Class_Globals
 	Public SQL As SQL
 	Public Conn As Conn

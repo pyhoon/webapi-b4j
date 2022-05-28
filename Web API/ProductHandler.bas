@@ -5,7 +5,7 @@ Type=Class
 Version=9.1
 @EndOfDesignText@
 ' Product Handler class
-' Version 1.11
+' Version 1.12
 Sub Class_Globals
 	Private Request As ServletRequest
 	Private Response As ServletResponse

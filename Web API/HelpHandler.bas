@@ -5,7 +5,7 @@ Type=Class
 Version=9.1
 @EndOfDesignText@
 ' Help Handler class
-' Version 1.11
+' Version 1.12
 Sub Class_Globals
 	'Dim Request As ServletRequest
 	Dim Response As ServletResponse
@@ -89,7 +89,8 @@ Public Sub ReadProjectFile (FileDir As String, FileName As String) As String
 		If List1.Get(i).As(String).Contains("srvr.AddHandler") Then
 			Dim Line1 As String = List1.Get(i)
 			Dim Section(3) As String = Regex.Split(",", Line1)
-			If Section(0).StartsWith("'") Or Section(0).StartsWith("#") Then
+			' 2022-05-11: bug (fixed) blank space before ' not trimmed
+			If Section(0).Trim.StartsWith("'") Then
 				'Log("Commented line: " & Section(1))
 			Else
 				If IgnoredHandlers.IndexOf(Section(1).Trim.Replace($"""$, "")) = -1 Then

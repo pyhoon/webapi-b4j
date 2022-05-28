@@ -25,12 +25,18 @@ Module9=WebUtils
 NumberOfFiles=3
 NumberOfLibraries=6
 NumberOfModules=9
-Version=9.3
+Version=9.5
 @EndOfDesignText@
-' Name: 		Web API Lite
+' Name: 		Web API Template Lite
 ' Description: 	Non-UI application (console / server application)
-' Version: 		1.11
+' Version: 		1.12
 
+'Click to create Publish.zip: ide://run?file=%JAVABIN%\jar.exe&WorkingDirectory=../Objects&Args=-cMf&Args=Publish.zip&Args=www&Args=*.jar&Args=*.ini&Args=*.db&Args=help.html&Args=help.js&Args=comments.txt
+
+#If RELEASE
+'#CustomBuildAction: 2, C:\Program Files\WinRAR\WinRAR.exe, a -afrar upload.rar www *.jar *.ini *.db help.html help.js -czcomments.txt
+#CustomBuildAction: 2, C:\Program Files\WinRAR\WinRAR.exe, a upload.zip www *.jar *.ini *.db help.html help.js comments.txt
+#End If
 #Region Project Attributes 
 	#CommandLineArgs:
 	#MergeLibraries: True 
@@ -44,7 +50,7 @@ Version=9.3
 #End Region
 
 Sub Process_Globals
-	Public const VERSION As String = "1.11"
+	Public const VERSION As String = "1.12"
 	Public srvr As Server
 	Public DB As DataConnector
 	Public ROOT_PATH As String
