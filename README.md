@@ -1,5 +1,5 @@
 # webapi-b4j
-Version: 1.11
+Version: 1.12
 
 A boilerplate for creating CRUD based Web API.
 
@@ -10,7 +10,7 @@ A boilerplate for creating CRUD based Web API.
 # Features
 - CRUD based - REST-API style (GET, POST, PUT, DELETE)
 - Front-end (HTML, CSS, JS, Bootstrap)
-- Support **MySQL** and **SQLite** database (Can be modified for MS SQL or SQL Express)
+- Support **MySQL** and **SQLite** database (can be modified for MS SQL or SQL Express)
 - Separate SQL queries file (queries-mysql.ini and queries-sqlite.ini)
 - Sample database auto-generated for first run (Category and Product tables with dummy data)
 - Versioning (using ROOT_PATH in config.ini, set as "/" if you don't want versioning)
@@ -21,11 +21,11 @@ A boilerplate for creating CRUD based Web API.
 2. Rename the extension from .zip to .b4xtemplate
 
 # How to use
-1. Copy the "Web API.b4xtemplate" file into B4J platform Additional folder.
+1. Copy the "Web API.b4xtemplate" file into B4J Additional Libraries folder.
 2. Open B4J and create a new project with "Web API" template. Give your project any name you like, for e.g. WebAPI
 3. Run the project in Debug or Release mode. You will see something like this in the Logs:
 ```
-Web API server (version = 1.10) is running on port 19800
+Web API server (version = 1.12) is running on port 19800
 Open the following URL from your web browser
 http://127.0.0.1:19800/v1/
 ```
