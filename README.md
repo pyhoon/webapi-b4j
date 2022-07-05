@@ -3,7 +3,7 @@ Version: 1.12
 
 A boilerplate for creating CRUD based Web API.
 
-**Depends on following libraries:** ByteConverter, JavaObject, jServer, Json, jSQL
+**Depends on following libraries:** ByteConverter, JavaObject, jServer (note that version 1.12 is based on jServer 4.0), Json, jSQL
 
 **B4X Client app:** https://github.com/pyhoon/webapi-client-b4x
 
