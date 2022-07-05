@@ -21,9 +21,10 @@ A boilerplate for creating CRUD based Web API.
 2. Rename the extension from .zip to .b4xtemplate
 
 # How to use
-1. Copy the "Web API.b4xtemplate" file into B4J Additional Libraries folder. If you download from Release, the file name will look like "Web.API.b4xtemplate". Rename it to "Web API.b4xtemplate".
-2. Open B4J and create a new project with "Web API" template. Give your project any name you like, for e.g. WebAPI
-3. Run the project in Debug or Release mode. You will see something like this in the Logs:
+1. Download "Web.API.b4xtemplate" from Release (https://github.com/pyhoon/webapi-b4j/releases). Rename it to "Web API.b4xtemplate".
+2. Copy the "Web API.b4xtemplate" file into B4J Additional Libraries folder.
+3. Open B4J and create a new project with "Web API" template. Give the project a name, for e.g. WebAPI
+4. Run the project in Debug or Release mode. You will see something like this in the Logs:
 ```
 Web API server (version = 1.12) is running on port 19800
 Open the following URL from your web browser
