@@ -21,8 +21,8 @@ A boilerplate for creating REST API Server with CRUD functionalities.
 2. Rename the extension from .zip to .b4xtemplate
 
 # How to use
-1. Download "Web.API.b4xtemplate" from Release (https://github.com/pyhoon/webapi-b4j/releases). Rename it to "Web API.b4xtemplate".
-2. Copy the "Web API.b4xtemplate" file into B4J Additional Libraries folder.
+1. Download "Web.API.Server.1.14.b4xtemplate" from Release (https://github.com/pyhoon/webapi-b4j/releases). Rename it to "Web API Server (1.14).b4xtemplate".
+2. Copy the "Web API Server (1.14).b4xtemplate" file into B4J Additional Libraries folder.
 3. Open B4J and create a new project with "Web API" template. Give the project a name, for e.g. WebAPI
 4. Run the project in Debug or Release mode. You will see something like this in the Logs:
 ```
