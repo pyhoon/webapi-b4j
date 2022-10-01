@@ -1,15 +1,15 @@
-# webapi-b4j
-Version: 1.12
+# WebAPI-B4J
+Version: 1.14
 
-A boilerplate for creating CRUD based Web API.
+A boilerplate for creating REST API Server with CRUD functionalities.
 
-**Depends on following libraries:** ByteConverter, JavaObject, jServer (note that version 1.12 is based on jServer 4.0), Json, jSQL
+**Depends on following libraries:** ByteConverter, JavaObject, jServer (note that version 1.12+ is based on jServer 4.0), Json, jSQL
 
 **B4X Client app:** https://github.com/pyhoon/webapi-client-b4x
 
 # Features
-- CRUD based - REST-API style (GET, POST, PUT, DELETE)
-- Front-end (HTML, CSS, JS, Bootstrap)
+- CRUD based - **REST**ful-API style (GET, POST, PUT, DELETE)
+- Front-end (HTML, CSS, JS, **Bootstrap**)
 - Support **MySQL** and **SQLite** database (can be modified for MS SQL or SQL Express)
 - Separate SQL queries file (queries-mysql.ini and queries-sqlite.ini)
 - Sample database auto-generated for first run (Category and Product tables with dummy data)
@@ -26,22 +26,24 @@ A boilerplate for creating CRUD based Web API.
 3. Open B4J and create a new project with "Web API" template. Give the project a name, for e.g. WebAPI
 4. Run the project in Debug or Release mode. You will see something like this in the Logs:
 ```
-Web API server (version = 1.12) is running on port 19800
+Web API server (version = 1.14) is running on port 19800
 Open the following URL from your web browser
 http://127.0.0.1:19800/v1/
 ```
 4. Copy the URL showed in Logs and open it using your web browser.
 5. To connect to MySQL server, go to Objects folder and open "config.ini".
 6. Edit the root password at line #42 (second last line). Save the file.
-7. In B4J project, comment the line '#AdditionalJar: sqlite-jdbc-3.36.0.2 and uncomment the line #AdditionalJar: mysql-connector-java-5.1.49-bin. (Make sure you are using the correct version of connector)
+7. In B4J project, comment the line '#AdditionalJar: sqlite-jdbc-3.39.3.0 and uncomment the line #AdditionalJar: mysql-connector-java-5.1.49-bin. (Make sure you are using the correct version of connector)
 8. Follow step #3 above.
 
 **Preview**
-<img src="https://github.com/pyhoon/webapi-b4j/raw/main/Preview/web-api.png" title="Web API" />
+<img src="https://github.com/pyhoon/webapi-b4j/raw/main/Preview/web-api-01.png" title="Homepage" />
+<img src="https://github.com/pyhoon/webapi-b4j/raw/main/Preview/web-api-02.png" title="Category" />
+<img src="https://github.com/pyhoon/webapi-b4j/raw/main/Preview/web-api-03.png" title="Documentation" />
 
 **YouTube**
 
-[![Alt text](https://img.youtube.com/vi/siTGmm726zI/0.jpg)](https://youtu.be/siTGmm726zI)
+[![Alt text](https://img.youtube.com/vi/umSSfja5Dzg/0.jpg)](https://youtu.be/umSSfja5Dzg)
 
 Made with ❤ in B4X
 
