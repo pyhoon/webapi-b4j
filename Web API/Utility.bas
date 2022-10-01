@@ -5,7 +5,7 @@ Type=StaticCode
 Version=8.1
 @EndOfDesignText@
 ' Utility Code module
-' Version 1.12
+' Version 1.14
 Sub Process_Globals
 	Private const CONTENT_TYPE_JSON As String = "application/json"
 	Private const CONTENT_TYPE_HTML As String = "text/html"
@@ -30,9 +30,9 @@ Public Sub BuildDocView (strHTML As String, View As String) As String
 	Return strHTML
 End Sub
 
-Public Sub BuildDocScript (strHTML As String, Script As String) As String
-	' Replace @DOCSCRIPT@ tag with new content
-	strHTML = strHTML.Replace("@DOCSCRIPT@", Script)
+Public Sub BuildScript (strHTML As String, Script As String) As String
+	' Replace @SCRIPT@ tag with new content
+	strHTML = strHTML.Replace("@SCRIPT@", Script)
 	Return strHTML
 End Sub
 

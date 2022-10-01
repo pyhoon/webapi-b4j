@@ -1,35 +1,40 @@
 ﻿AppType=StandardJava
 Build1=Default,b4j.webapi
-File1=help.html
-File2=index.html
-File3=main.html
+File1=category.html
+File2=help.html
+File3=index.html
+File4=main.html
 FileGroup1=Default Group
 FileGroup2=Default Group
 FileGroup3=Default Group
+FileGroup4=Default Group
 Group=Default Group
 Library1=byteconverter
-Library2=jcore
-Library3=jserver
-Library4=json
-Library5=jsql
-Library6=javaobject
-Module1=CorsFilter
-Module2=DataConnector
-Module3=DefaultHandler
-Module4=HelpHandler
-Module5=HomeHandler
-Module6=HttpsFilter
-Module7=ProductHandler
-Module8=Utility
-Module9=WebUtils
-NumberOfFiles=3
-NumberOfLibraries=6
-NumberOfModules=9
-Version=9.5
+Library2=javaobject
+Library3=jcore
+Library4=jserver
+Library5=json
+Library6=jsql
+Library7=jokhttputils2
+Module1=CategoryHandler
+Module10=Utility
+Module11=WebUtils
+Module2=CorsFilter
+Module3=DataConnector
+Module4=DefaultHandler
+Module5=FindHandler
+Module6=HelpHandler
+Module7=HomeHandler
+Module8=HttpsFilter
+Module9=ProductHandler
+NumberOfFiles=4
+NumberOfLibraries=7
+NumberOfModules=11
+Version=9.8
 @EndOfDesignText@
 ' Name: 		Web API Template Lite
 ' Description: 	Non-UI application (console / server application)
-' Version: 		1.12
+' Version: 		1.14
 
 'Click to create Publish.zip: ide://run?file=%JAVABIN%\jar.exe&WorkingDirectory=../Objects&Args=-cMf&Args=Publish.zip&Args=www&Args=*.jar&Args=*.ini&Args=*.db&Args=help.html&Args=help.js&Args=comments.txt
 
@@ -44,13 +49,15 @@ Version=9.5
 
 #Region AdditionalJar
 ' MySQL connector
-' #AdditionalJar: mysql-connector-java-5.1.49-bin
-' SQLite connector
-#AdditionalJar: sqlite-jdbc-3.36.0.2
+' #AdditionalJar: mysql-connector-java-5.1.49
+' #AdditionalJar: mysql-connector-java-8.0.30
+' SQLite connector 
+' Download: https://github.com/xerial/sqlite-jdbc/releases/download/3.39.3.0/sqlite-jdbc-3.39.3.0.jar
+ #AdditionalJar: sqlite-jdbc-3.39.3.0
 #End Region
 
 Sub Process_Globals
-	Public const VERSION As String = "1.12"
+	Public const VERSION As String = "1.14"
 	Public srvr As Server
 	Public DB As DataConnector
 	Public ROOT_PATH As String
@@ -60,7 +67,7 @@ Sub Process_Globals
 	Public config As Map
 	Public queries As Map
 	Public Element As Element
-	Type Element (Root As Int, Parent As Int, Parent_Id As Int, Child As Int, Child_Id As Int, Max_Elements As Int)
+	Type Element (Root As Int, First As Int, Second As Int, Third As Int, Fourth As Int, Max_Elements As Int)
 End Sub
 
 Sub AppStart (Args() As String)
@@ -102,17 +109,17 @@ Sub AppStart (Args() As String)
 	If ROOT_PATH <> "/" Then ' If webroot is using subdirectory
 		srvr.AddHandler(ROOT_PATH, "HomeHandler", False)
 		Element.Root = 1
-		Element.Parent = 2
-		Element.Parent_Id = 3
-		Element.Child = 4
-		Element.Child_Id = 5
+		Element.First = 2
+		Element.Second = 3
+		Element.Third = 4
+		Element.Fourth = 5
 		Element.Max_Elements = 6
 	Else
 		Element.Root = 0
-		Element.Parent = 1
-		Element.Parent_Id = 2
-		Element.Child = 3
-		Element.Child_Id = 4
+		Element.First = 1
+		Element.Second = 2
+		Element.Third = 3
+		Element.Fourth = 4
 		Element.Max_Elements = 5
 	End If
 	
@@ -127,7 +134,9 @@ Sub AppStart (Args() As String)
 	
 	' Add more handlers here
 	srvr.AddHandler(ROOT_PATH & "topic/*", "DefaultHandler", False)
-	srvr.AddHandler(ROOT_PATH & "category/*", "ProductHandler", False)
+	srvr.AddHandler(ROOT_PATH & "category/*", "CategoryHandler", False)
+	srvr.AddHandler(ROOT_PATH & "product/*", "ProductHandler", False)
+	srvr.AddHandler(ROOT_PATH & "find/*", "FindHandler", False)
 	
 	' Add CrossOriginFilter
 	ConfigureCORS("/*", "*", "*", "*")

@@ -5,7 +5,7 @@ Type=Class
 Version=9.1
 @EndOfDesignText@
 ' Default Handler class
-' Version 1.12
+' Version 1.14
 Sub Class_Globals
 	Private Literals() As String = Array As String("topic", "hello-world") 'ignore
 	Private Elements() As String
@@ -20,8 +20,8 @@ Sub Handle(req As ServletRequest, resp As ServletResponse)
 	Response = resp
 	
 	Elements = Regex.Split("/", req.RequestURI)
-	If Elements.Length-1 = Main.Element.Parent_Id Then
-		GetTestSub(Elements(Main.Element.Parent_Id))
+	If Elements.Length-1 = Main.Element.Second Then
+		GetTestSub(Elements(Main.Element.Second))
 	Else
 		GetTestSub("")
 	End If

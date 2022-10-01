@@ -5,7 +5,7 @@ Type=Class
 Version=8.1
 @EndOfDesignText@
 ' Home Handler class
-' Version 1.12
+' Version 1.14
 Sub Class_Globals
 	Private Request As ServletRequest
 	Private Response As ServletResponse
@@ -23,6 +23,8 @@ Sub Handle (req As ServletRequest, resp As ServletResponse)
 	' Search e.g. ' http://127.0.0.1:19800/v1/?search=ha
 	If Request.GetParameter("search") <> "" Then ' GET
 		Search(Request.GetParameter("search"))
+	Else If Request.GetParameter("default") <> "" Then ' GET
+		Search("")
 	Else if Request.Method.ToUpperCase = "POST" Then
 		Dim keywords As String = req.GetParameter("keywords").Trim
 		Search(keywords)
@@ -36,10 +38,12 @@ Private Sub ShowHomePage
 	Dim strView As String = Utility.ReadTextFile("index.html")
 	strMain = Utility.BuildView(strMain, strView)
 	strMain = Utility.BuildHtml(strMain, Main.config)
+	Dim strScripts As String = $"<script src="${Main.ROOT_URL}/assets/js/webapisearch.js"></script>"$
+	strMain = Utility.BuildScript(strMain, strScripts)
 	Utility.ReturnHTML(strMain, Response)
 End Sub
 
-Sub Search (SearchForText As String)
+Private Sub Search (SearchForText As String)
 	Dim con As SQL = Main.DB.GetConnection
 	Dim strSQL As String
 	Try
@@ -48,8 +52,14 @@ Sub Search (SearchForText As String)
 		If keys.Length < 2 Then
 			Dim s1 As String = SearchForText.Trim
 			'Log(s1)
-			strSQL = Main.queries.Get("SEARCH_PRODUCT_BY_CATEGORY_CODE_AND_NAME_ONEWORD_ORDERED")
-			Dim res As ResultSet = con.ExecQuery2(strSQL, Array As String("%" & s1 & "%", "%" & s1 & "%", "%" & s1 & "%"))
+			If s1 = "all" Then
+				strSQL = $"SELECT P.id As aa, P.product_code As bb, C.`category_name` As cc, P.product_name As dd, P.product_price As ee, P.`category_id` As ff
+				FROM `tbl_products` P JOIN `tbl_category` C ON P.`category_id` = C.`id`"$
+				Dim res As ResultSet = con.ExecQuery(strSQL)
+			Else
+				strSQL = Main.queries.Get("SEARCH_PRODUCT_BY_CATEGORY_CODE_AND_NAME_ONEWORD_ORDERED")
+				Dim res As ResultSet = con.ExecQuery2(strSQL, Array As String("%" & s1 & "%", "%" & s1 & "%", "%" & s1 & "%"))
+			End If
 		Else
 			Dim s1 As String = keys(0).Trim
 			Dim s2 As String = SearchForText.Replace(keys(0), "").Trim

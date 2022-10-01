@@ -27,6 +27,7 @@ Public Sub AddToServer (ServerObject As Server)
     joMe.RunMethod("addFilter", Array As Object(joServerWrapper.GetField("context"), cPath, cSettings))
 End Sub
 
+' Use jServer version 4.00+
 #If JAVA
 
 import java.util.EnumSet;
