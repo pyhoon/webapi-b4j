@@ -1,5 +1,5 @@
 # WebAPI-B4J
-Version: 1.14
+Version: 1.15
 
 A boilerplate for creating REST API Server with CRUD functionalities.
 
@@ -17,16 +17,16 @@ A boilerplate for creating REST API Server with CRUD functionalities.
 - Auto generated documentation with API test.
 
 # Create B4X template from source
-1. Archive the files inside "Web API" directory as "Web API.zip" using WinRAR or 7-Zip
+1. Archive the files inside "Web API" directory as "Web API Server (1.15).zip" using WinRAR or 7-Zip
 2. Rename the extension from .zip to .b4xtemplate
 
 # How to use
-1. Download "Web.API.Server.1.14.b4xtemplate" from Release (https://github.com/pyhoon/webapi-b4j/releases). Rename it to "Web API Server (1.14).b4xtemplate".
-2. Copy the "Web API Server (1.14).b4xtemplate" file into B4J Additional Libraries folder.
+1. Download "Web.API.Server.1.15.b4xtemplate" from Release (https://github.com/pyhoon/webapi-b4j/releases). Rename it to "Web API Server (1.15).b4xtemplate".
+2. Copy the "Web API Server (1.15).b4xtemplate" file into B4J Additional Libraries folder.
 3. Open B4J and create a new project with "Web API" template. Give the project a name, for e.g. WebAPI
 4. Run the project in Debug or Release mode. You will see something like this in the Logs:
 ```
-Web API server (version = 1.14) is running on port 19800
+Web API server (version = 1.15) is running on port 19800
 Open the following URL from your web browser
 http://127.0.0.1:19800/v1/
 ```
