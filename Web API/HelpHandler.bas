@@ -5,7 +5,7 @@ Type=Class
 Version=9.1
 @EndOfDesignText@
 ' Help Handler class
-' Version 1.14
+' Version 1.15
 Sub Class_Globals
 	Dim Response As ServletResponse
 	Dim DocScripts As String

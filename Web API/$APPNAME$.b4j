@@ -34,7 +34,7 @@ Version=9.8
 @EndOfDesignText@
 ' Name: 		Web API Template Lite
 ' Description: 	Non-UI application (console / server application)
-' Version: 		1.14
+' Version: 		1.15
 
 'Click to create Publish.zip: ide://run?file=%JAVABIN%\jar.exe&WorkingDirectory=../Objects&Args=-cMf&Args=Publish.zip&Args=www&Args=*.jar&Args=*.ini&Args=*.db&Args=help.html&Args=help.js&Args=comments.txt
 
@@ -57,7 +57,7 @@ Version=9.8
 #End Region
 
 Sub Process_Globals
-	Public const VERSION As String = "1.14"
+	Public const VERSION As String = "1.15"
 	Public srvr As Server
 	Public DB As DataConnector
 	Public ROOT_PATH As String
@@ -145,7 +145,7 @@ Sub AppStart (Args() As String)
 	' Server starts
 	srvr.Start
 	
-	Log($"Web API server (version = ${VERSION}) is running on port ${srvr.Port}"$)
+	Log($"${config.Get("APP_TITLE")} (version = ${VERSION}) is running on port ${srvr.Port}"$)
 	Log($"Open the following URL from your web browser"$)
 	Log(ROOT_URL & ROOT_PATH)
 	' Open a web browser and navigate to: http://127.0.0.1:19800/v1/

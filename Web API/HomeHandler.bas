@@ -5,7 +5,7 @@ Type=Class
 Version=8.1
 @EndOfDesignText@
 ' Home Handler class
-' Version 1.14
+' Version 1.15
 Sub Class_Globals
 	Private Request As ServletRequest
 	Private Response As ServletResponse

@@ -139,9 +139,9 @@ $(document).on('click', '.edit', function (e) {
   var category = $(this).attr("data-category");
   var code = $(this).attr("data-code");
   var name = $(this).attr("data-name");
-  var price = $(this).attr("data-price");
+  var price = $(this).attr("data-price").replace(",", "");
   $('#id1').val(id);
-  $('#category1').val(category);
+  $('#category2').val(category);
   $('#code1').val(code);
   $('#name1').val(name);
   $('#price1').val(price);
@@ -149,11 +149,9 @@ $(document).on('click', '.edit', function (e) {
 
 $(document).on('click', '.delete', function (e) {
   var id = $(this).attr("data-id");
-  var category = $(this).attr("data-category");
   var code = $(this).attr("data-code");
   var name = $(this).attr("data-name");
   $('#id2').val(id);
-  $('#category2').val(category);
   $('#code_name').text("(" + code + ") " + name);
 });
 
