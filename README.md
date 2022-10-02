@@ -30,11 +30,11 @@ Web API Server (version = 1.15) is running on port 19800
 Open the following URL from your web browser
 http://127.0.0.1:19800/v1/
 ```
-4. Copy the URL showed in Logs and open it using your web browser.
-5. To connect to MySQL server, go to Objects folder and open "config.ini".
-6. Edit the root password at line #42 (second last line). Save the file.
-7. In B4J project, comment the line '#AdditionalJar: sqlite-jdbc-3.39.3.0 and uncomment the line #AdditionalJar: mysql-connector-java-5.1.49-bin. (Make sure you are using the correct version of connector)
-8. Follow step #3 above.
+5. Copy the URL showed in Logs and open it using your web browser.
+6. To connect to MySQL server, go to Objects folder and open "config.ini".
+7. Edit the root password at line #42 (second last line). Save the file.
+8. In B4J project, comment the line '#AdditionalJar: sqlite-jdbc-3.39.3.0 and uncomment the line #AdditionalJar: mysql-connector-java-5.1.49-bin. (Make sure you are using the correct version of connector)
+9. Follow step #4 to #5 above.
 
 **Preview**
 <img src="https://github.com/pyhoon/webapi-b4j/raw/main/Preview/web-api-01.png" title="Homepage" />
