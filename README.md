@@ -7,6 +7,7 @@ A boilerplate for creating REST API Server with CRUD functionalities.
 
 **B4X Client app:** https://github.com/pyhoon/webapi-client-b4x
 
+*For newer version, see* **webapi-2-b4j (v2.00 beta 3)** https://github.com/pyhoon/webapi-2-b4j
 
 ## Depends on following libraries:
 - ByteConverter
