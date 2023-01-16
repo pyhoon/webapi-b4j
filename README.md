@@ -3,9 +3,17 @@ Version: 1.15
 
 A boilerplate for creating REST API Server with CRUD functionalities.
 
-**Depends on following libraries:** ByteConverter, JavaObject, jServer (note that version 1.12+ is based on jServer 4.0), Json, jSQL
+**Check the Wiki!** https://github.com/pyhoon/webapi-b4j/wiki
 
 **B4X Client app:** https://github.com/pyhoon/webapi-client-b4x
+
+
+## Depends on following libraries:
+- ByteConverter
+- JavaObject
+- jServer (note that version 1.12+ is based on jServer 4.0)
+- Json
+- jSQL
 
 # Features
 - CRUD based - **REST**ful-API style (GET, POST, PUT, DELETE)
