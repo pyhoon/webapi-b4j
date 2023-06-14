@@ -16,7 +16,7 @@ Public Sub Initialize (Path As String, Settings As Map)
 	cSettings = Settings
 End Sub
 
-'Return True to allow the request to proceed.
+'Return True to allow the request to proceed
 'Public Sub Filter (req As ServletRequest, resp As ServletResponse) As Boolean
 '	Return True
 'End Sub
@@ -27,22 +27,21 @@ Public Sub AddToServer (ServerObject As Server)
     joMe.RunMethod("addFilter", Array As Object(joServerWrapper.GetField("context"), cPath, cSettings))
 End Sub
 
-' Use jServer version 4.00+
 #If JAVA
-
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map.Entry;
-
-// import javax.servlet.DispatcherType;
-// import javax.servlet.Filter;
-import jakarta.servlet.DispatcherType;
-import jakarta.servlet.Filter;
-
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.FilterHolder;
-
 import anywheresoftware.b4a.objects.collections.Map.MyMap;
+
+// jServer version 3.00
+// import javax.servlet.DispatcherType;
+// import javax.servlet.Filter;
+
+// jServer version 4.00+
+import jakarta.servlet.DispatcherType;
+import jakarta.servlet.Filter;
 
 public void addFilter(ServletContextHandler context, String path, MyMap settings) throws Exception {
     FilterHolder fh = new FilterHolder((Class<? extends Filter>) Class.forName("org.eclipse.jetty.servlets.CrossOriginFilter"));
@@ -65,5 +64,4 @@ private void copyMyMap(MyMap m, java.util.Map<String, String> o, boolean integer
         }
     }
 }
-
 #End If

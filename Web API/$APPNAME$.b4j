@@ -15,7 +15,6 @@ Library3=jcore
 Library4=jserver
 Library5=json
 Library6=jsql
-Library7=jokhttputils2
 Module1=CategoryHandler
 Module10=Utility
 Module11=WebUtils
@@ -28,17 +27,20 @@ Module7=HomeHandler
 Module8=HttpsFilter
 Module9=ProductHandler
 NumberOfFiles=4
-NumberOfLibraries=7
+NumberOfLibraries=6
 NumberOfModules=11
 Version=9.8
 @EndOfDesignText@
-' Name: 		Web API Template Lite
+' Name: 		Web API Template
 ' Description: 	Non-UI application (console / server application)
-' Version: 		1.15
+' Version: 		1.16
 
-'Click to create Publish.zip: ide://run?file=%JAVABIN%\jar.exe&WorkingDirectory=../Objects&Args=-cMf&Args=Publish.zip&Args=www&Args=*.jar&Args=*.ini&Args=*.db&Args=help.html&Args=help.js&Args=comments.txt
+' Click to browse: http://127.0.0.1:19800/v1/
+' Click to open Objects folder: ide://run?file=%WINDIR%\SysWOW64\explorer.exe&Args=%PROJECT%\Objects (Background)
+' 				Objects folder: file://C:\B4X\Development\WebAPI116\Objects (Bring to front)
+' Click to create Publish.zip: ide://run?file=%JAVABIN%\jar.exe&WorkingDirectory=../Objects&Args=-cMf&Args=Publish.zip&Args=www&Args=*.jar&Args=*.ini&Args=*.db&Args=help.html&Args=help.js&Args=comments.txt
 
-#If RELEASE
+#If Release
 '#CustomBuildAction: 2, C:\Program Files\WinRAR\WinRAR.exe, a -afrar upload.rar www *.jar *.ini *.db help.html help.js -czcomments.txt
 #CustomBuildAction: 2, C:\Program Files\WinRAR\WinRAR.exe, a upload.zip www *.jar *.ini *.db help.html help.js comments.txt
 #End If
@@ -57,7 +59,7 @@ Version=9.8
 #End Region
 
 Sub Process_Globals
-	Public const VERSION As String = "1.15"
+	Public const VERSION As String = "1.16"
 	Public srvr As Server
 	Public DB As DataConnector
 	Public ROOT_PATH As String
@@ -133,9 +135,9 @@ Sub AppStart (Args() As String)
 	srvr.AddHandler(ROOT_PATH & "help/*", "HelpHandler", False)
 	
 	' Add more handlers here
-	srvr.AddHandler(ROOT_PATH & "topic/*", "DefaultHandler", False)
-	srvr.AddHandler(ROOT_PATH & "category/*", "CategoryHandler", False)
-	srvr.AddHandler(ROOT_PATH & "product/*", "ProductHandler", False)
+	srvr.AddHandler(ROOT_PATH & "topics/*", "DefaultHandler", False) 		' use plural
+	srvr.AddHandler(ROOT_PATH & "categories/*", "CategoryHandler", False) 	' use plural
+	srvr.AddHandler(ROOT_PATH & "products/*", "ProductHandler", False) 		' use plural
 	srvr.AddHandler(ROOT_PATH & "find/*", "FindHandler", False)
 	
 	' Add CrossOriginFilter

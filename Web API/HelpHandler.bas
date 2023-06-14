@@ -5,11 +5,13 @@ Type=Class
 Version=9.1
 @EndOfDesignText@
 ' Help Handler class
-' Version 1.15
+' Version 1.16
 Sub Class_Globals
 	Dim Response As ServletResponse
 	Dim DocScripts As String
-	Dim blnGenFile As Boolean = True 'ignore
+	#If Debug
+	Dim blnGenFile As Boolean = True
+	#End If
 End Sub
 
 Public Sub Initialize
@@ -26,12 +28,12 @@ Private Sub ShowHelpPage
 	Dim strView As String = Utility.ReadTextFile("help.html")
 	Dim strContents As String
 	Dim strScripts As String
-	#if release
+	#If Release
 	If File.Exists(File.DirApp, "help.html") Then
 		strContents = File.ReadString(File.DirApp, "help.html")
 		strScripts = File.ReadString(File.DirApp, "help.js")
 	End If
-	#else
+	#Else
 	' Assume only 1 b4j project file
 	Dim ProjectFile As String
 	Dim ProjectDirFiles As List = File.ListFiles(File.DirApp.Replace("\Objects", ""))
@@ -130,16 +132,29 @@ Public Sub ReadProjectFile (FileDir As String, FileName As String) As String
 		VerbSubs.Add(CreateMap(SubStartsWithPut: "SubStartsWithPut"))
 		VerbSubs.Add(CreateMap(SubStartsWithDelete: "SubStartsWithDelete"))
 
-		strHtml = strHtml & GenerateHeaderByHandler (HandlerFile.As(String).Replace("Handler", ""))
+		Dim EndPoint As String = HandlerFile.As(String).Replace("Handler", "")
+		strHtml = strHtml & GenerateHeaderByHandler(EndPoint)
 		
 		Dim List2 As List
 		List2 = File.ReadList(FileDir, HandlerFile & ".bas")
-
-		Dim Literals() As String
 		
 		For i = 0 To List2.Size - 1
 			If List2.Get(i).As(String).StartsWith("'") Or List2.Get(i).As(String).StartsWith("#") Then
 				' Ignore the line
+			Else If List2.Get(i).As(String).Replace(TAB, "").ToLowerCase.Replace(" ", "").IndexOf("endpointasstring=") > -1 Then
+				Dim strEndPoint() As String
+				strEndPoint = Regex.Split("=", List2.Get(i).As(String))
+				If strEndPoint.Length = 2 Then
+					If Not(strEndPoint(0).Replace(TAB, "").Replace(" ", "").StartsWith("'")) Then
+						EndPoint = strEndPoint(1)
+						' Remove commented code
+						If EndPoint.IndexOf("'") > -1 Then
+							EndPoint = EndPoint.Replace(EndPoint.SubString(EndPoint.IndexOf("'")), "")
+						End If
+						' Clean up unwanted characters
+						EndPoint = EndPoint.Replace($"""$, "").Trim
+					End If
+				End If
 			Else
 				Dim index As Int = List2.Get(i).As(String).ToLowerCase.IndexOf("sub")
 				If index > -1 Then
@@ -152,8 +167,8 @@ Public Sub ReadProjectFile (FileDir As String, FileName As String) As String
 										' Check commented code in between and ignore the rest of the code
 										If Line2.IndexOf("'") > -1 Then
 											Line2 = Line2.Replace(Line2.SubString(Line2.IndexOf("'")), "")
-										End If																														
-										If Line2.Contains("(") Then ' take 1st occurence											
+										End If
+										If Line2.Contains("(") Then ' take 1st occurence
 											Dim Arguments As String = Line2.SubString2(Line2.IndexOf("("), Line2.LastIndexOf(")")+1)
 											Line2 = Line2.Replace(Arguments, "")
 											Arguments = Arguments.Replace("(", "").Replace(")", "")
@@ -167,8 +182,11 @@ Public Sub ReadProjectFile (FileDir As String, FileName As String) As String
 											plist.Initialize
 										End If
 										key.Add(Line2)
-
-										Dim MethodProperties As Map = CreateMap("Verb": verb, "Method": Line2, "Args": Arguments, "Prm": plist, "Body": "&nbsp;", "DESC1": "", "DESC2": "(N/A)", "Elems": 1)
+										
+										Dim List4 As List
+										List4.Initialize
+										
+										Dim MethodProperties As Map = CreateMap("Verb": verb, "Method": Line2, "Args": Arguments, "EndPoint": EndPoint.ToLowerCase, "Prm": plist, "Path": List4, "Body": "&nbsp;", "Desc": "&nbsp;")
 										Methods.Add(MethodProperties)
 									Next
 								End If
@@ -177,20 +195,29 @@ Public Sub ReadProjectFile (FileDir As String, FileName As String) As String
 					Next
 				Else
 					Dim Line3 As String = List2.Get(i).As(String)
-				
-					' Try get the Literals
-					If Line3.ToLowerCase.Replace(" ", "").IndexOf("literals()asstring") > -1 Then
-						Dim ps As Int = Line3.LastIndexOf("(") ' ps = index of last open parentheses, note: literal should not contain '(' character
-						Dim pe As Int = Line3.LastIndexOf(")") ' pe = index of last close parentheses, just in case ) is not end character
-						Dim strLiterals As String = Line3.SubString2(ps+1, pe)
-						Literals = Regex.Split(",", strLiterals)
-						' Clean up unwanted characters
-						For e = 0 To Literals.Length - 1
-							Literals(e) = Literals(e).Replace($"""$, "").Trim
-						Next
-					End If
-				
+			
 					If Line3.IndexOf("'") > -1 Then
+						' search for Desc
+						If Line3.ToLowerCase.IndexOf("#desc") > -1 Then
+							Dim desc() As String
+							desc = Regex.Split("=", Line3)
+							If desc.Length = 2 Then
+								Dim Map3 As Map = Methods.Get(Methods.Size-1)
+								Map3.Put("Desc", desc(1).Trim)
+							End If
+						End If
+						
+						' search for Path
+						If Line3.ToLowerCase.IndexOf("#path") > -1 Then
+							Dim path() As String
+							path = Regex.Split("=", Line3)
+							If path.Length = 2 Then
+								Dim Map3 As Map = Methods.Get(Methods.Size-1)
+								Dim List3 As List = path(1).Trim.As(JSON).ToList
+								Map3.Put("Path", List3)
+							End If
+						End If
+						
 						' search for Body
 						If Line3.ToLowerCase.IndexOf("#body") > -1 Then
 							Dim body() As String
@@ -198,33 +225,6 @@ Public Sub ReadProjectFile (FileDir As String, FileName As String) As String
 							If body.Length = 2 Then
 								Dim Map3 As Map = Methods.Get(Methods.Size-1)
 								Map3.Put("Body", body(1).Trim)
-							End If
-						End If
-						' search for Desc1
-						If Line3.ToLowerCase.IndexOf("#desc1") > -1 Then
-							Dim dc1() As String
-							dc1 = Regex.Split("=", Line3)
-							If dc1.Length = 2 Then
-								Dim Map3 As Map = Methods.Get(Methods.Size-1)
-								Map3.Put("DESC1", dc1(1).Trim)
-							End If
-						End If
-						' search for Desc2
-						If Line3.ToLowerCase.IndexOf("#desc2") > -1 Then
-							Dim dc2() As String
-							dc2 = Regex.Split("=", Line3)
-							If dc2.Length = 2 Then
-								Dim Map3 As Map = Methods.Get(Methods.Size-1)
-								Map3.Put("DESC2", dc2(1).Trim)
-							End If
-						End If
-						' Get # of elements in URL
-						If Line3.ToLowerCase.IndexOf("#elems") > -1 Then
-							Dim elems() As String
-							elems = Regex.Split("=", Line3)
-							If elems.Length = 2 Then
-								Dim Map3 As Map = Methods.Get(Methods.Size-1)
-								Map3.Put("Elems", elems(1).Trim)
 							End If
 						End If
 					End If
@@ -235,10 +235,10 @@ Public Sub ReadProjectFile (FileDir As String, FileName As String) As String
 		For Each m As Map In Methods
 			Dim MM(2) As String
 			MM = Regex.Split(" As ", m.Get("Method")) ' Ignore return type
-			strHtml = strHtml & GenerateDocItem(m.Get("Verb"), MM(0).Trim, m.Get("Prm"), m.Get("Body"), m.Get("DESC1"), m.Get("DESC2"), Literals, m.Get("Elems"))
+			strHtml = strHtml & GenerateDocItem(m.Get("Verb"), MM(0).Trim, m.Get("EndPoint"), m.Get("Prm"), m.Get("Path"), m.Get("Desc"), m.Get("Body"))
 		Next
 
-		' Retain this part for debugging purpose
+		'' Retain this part for debugging purpose
 		'For Each m As Map In Methods
 		'	Log(" ")
 		'	Log("[" & m.Get("Verb") & "]")
@@ -255,12 +255,12 @@ Public Sub ReadProjectFile (FileDir As String, FileName As String) As String
 		'		pm = Regex.Split(" as ", Lst.Get(i).As(String).ToLowerCase)
 		'		Log(pm(0).Trim & " [" & pm(1).Trim & "]")
 		'	Next
-		'	Log("DESC1: " & m.Get("DESC1"))
-		'	Log("DESC2: " & m.Get("DESC2"))
+		'	Log("Desc: " & m.Get("Desc"))
+		'	Log("EndPoint: " & m.Get("EndPoint"))
 		'Next
 	Next
 	
-	#if debug
+	#If Debug
 	' Save these files for Release/Production
 	If blnGenFile Then
 		If File.Exists(File.DirApp, "help.html") Then File.Delete(File.DirApp, "help.html")
@@ -273,52 +273,11 @@ Public Sub ReadProjectFile (FileDir As String, FileName As String) As String
 	Return strHtml
 End Sub
 
-Private Sub GenerateLink (Literals() As String, Elems As Int, IDRequired As Boolean) As String
-	Dim Link As String = Main.ROOT_PATH
-	If Elems > 0 And Literals.Length > 0 Then
-		If Elems Mod 2 = 0 Then
-			Elems = Elems - 1 ' Elems = 2 is same as Elems = 1, Elems = 4 is same as Elems = 3
-		End If
-		Link = Link & Literals(0)
-		If Elems > 2 Then
-			Link = Link & "/" & Literals(1) & "/" & Literals(2)
-		End If
-		If IDRequired Then
-			Link = Link & "/" & Literals(Elems)
-		End If
-	End If
-	Return Link
-End Sub
-
-Private Sub GenerateLink1 (Literals() As String, Elems As Int) As String
-	Dim Link As String = Main.ROOT_PATH
-	If Elems > 0 And Literals.Length > 0 Then
-		If Elems Mod 2 = 0 Then
-			Elems = Elems - 1
-		End If
-		Link = Link & Literals(0)
-		If Elems > 2 Then
-			Dim keywords() As String
-			keywords = Regex.Split("\|", Literals(1))
-			Link = Link & "/" & keywords(0) & "/" & Literals(2) & "/" & Literals(Elems)
-		End If
-	End If
-	Return Link
-End Sub
-
-Private Sub GenerateLink2 (Literals() As String, Elems As Int) As String
-	Dim Link As String = Main.ROOT_PATH
-	If Elems > 0 And Literals.Length > 0 Then
-		If Elems Mod 2 = 0 Then
-			Elems = Elems - 1
-		End If
-		Link = Link & Literals(0)
-		If Elems > 2 Then
-			Dim keywords() As String
-			keywords = Regex.Split("\|", Literals(1))
-			Link = Link & "/" & keywords(1) & "/" & Literals(2) & "/" & Literals(Elems)
-		End If
-	End If
+Private Sub GenerateLink (EndPoint As String, Path As List) As String
+	Dim Link As String = Main.ROOT_PATH & EndPoint
+	For Each Element As String In Path
+		Link = Link & IIf(Link.EndsWith("/"), "", "/") & Element
+	Next
 	Return Link
 End Sub
 
@@ -420,7 +379,7 @@ Public Sub GenerateHeaderByHandler (Header As String) As String
 	Return strHtml
 End Sub
 
-Public Sub GenerateDocItem (Verb As String, MethodName As String, Params As List, Body As String, Desc1 As String, Desc2 As String, Literals() As String, Elems As Int) As String
+Public Sub GenerateDocItem (Verb As String, MethodName As String, EndPoint As String, Params As List, Path As List, Desc As String, Body As String) As String
 	Dim strHTML As String
 	Dim strParams As String
 	Dim strColor As String
@@ -449,84 +408,19 @@ Public Sub GenerateDocItem (Verb As String, MethodName As String, Params As List
 	' Ignore Method name
 	'Log(MethodName)
 	
-	If Desc1 <> "(N/A)" Then
-		If Params.Size > 0 And Params.Get(0).As(String).Length > 0 Then
-			For i = 0 To Params.Size - 1
-				Dim pm() As String
-				pm = Regex.Split(" As ", Params.Get(i))
-				strParams = strParams & pm(0).Trim & " [" & pm(1).Trim & "]" & "<br/>"
-			Next
-		Else
-			strParams = "Not required"
-			strInputDisabled = "disabled"
-		End If
+	If Params.Size > 0 And Params.Get(0).As(String).Length > 0 Then
+		For i = 0 To Params.Size - 1
+			Dim pm() As String
+			pm = Regex.Split(" As ", Params.Get(i))
+			strParams = strParams & pm(0).Trim & " [" & pm(1).Trim & "]" & "<br/>"
+		Next
+	Else
+		strParams = "Not required"
+		strInputDisabled = "disabled"
+	End If
 
-		' To special handle FindHandler
-		If Literals(1).Contains("|") Then
-			strLink = GenerateLink1(Literals, Elems)
-		Else
-			strLink = GenerateLink(Literals, Elems, True)
-		End If
-		strHTML = GenerateVerbSection(Verb, strColor, "btn" & MethodName & "1", strLink, Desc1, strParams, Body, strExpected, strInputDisabled, strDisabledBackground)
-		DocScripts = DocScripts & GenerateResponseScript(Verb, "btn" & MethodName & "1")
-	End If
-	
-	strParams = ""
-	'strExpected = "200 Success"
-	strInputDisabled = ""
-	strDisabledBackground = "#FFFFFF"
-	
-	If Desc2 <> "(N/A)" Then
-		' To special handle FindHandler
-		If Literals(1).Contains("|") Then
-			If Params.Size > 1 Then
-				For i = 0 To Params.Size - 1
-					Dim pm() As String
-					pm = Regex.Split(" As ", Params.Get(i))
-					strParams = strParams & pm(0).Trim & " [" & pm(1).Trim & "]" & "<br/>"
-				Next
-			Else If Params.Size > 0 Then
-				If Elems > 2 Then
-					Dim pm() As String
-					pm = Regex.Split(" As ", Params.Get(0))
-					strParams = strParams & pm(0).Trim & " [" & pm(1).Trim & "]"
-				Else
-					strParams = "Not required"
-					strInputDisabled = "disabled"
-					strDisabledBackground = "#FFFF99"
-				End If
-			Else
-				strParams = "Not required"
-				strInputDisabled = "disabled"
-				strDisabledBackground = "#FFFF99"
-			End If
-			strLink = GenerateLink2(Literals, Elems)
-		Else
-			If Params.Size > 1 Then
-				For i = 0 To Params.Size - 2
-					Dim pm() As String
-					pm = Regex.Split(" As ", Params.Get(i))
-					strParams = strParams & pm(0).Trim & " [" & pm(1).Trim & "]" & "<br/>"
-				Next
-			Else If Params.Size > 0 Then
-				If Elems > 2 Then
-					Dim pm() As String
-					pm = Regex.Split(" As ", Params.Get(0))
-					strParams = strParams & pm(0).Trim & " [" & pm(1).Trim & "]"
-				Else
-					strParams = "Not required"
-					strInputDisabled = "disabled"
-					strDisabledBackground = "#FFFF99"
-				End If
-			Else
-				strParams = "Not required"
-				strInputDisabled = "disabled"
-				strDisabledBackground = "#FFFF99"
-			End If
-			strLink = GenerateLink(Literals, Elems, False)
-		End If
-		strHTML = strHTML & GenerateVerbSection(Verb, strColor, "btn" & MethodName & "2", strLink, Desc2, strParams, Body, strExpected, strInputDisabled, strDisabledBackground)
-		DocScripts = DocScripts & GenerateResponseScript(Verb, "btn" & MethodName & "2")
-	End If
+	strLink = GenerateLink(EndPoint, Path)
+	strHTML = GenerateVerbSection(Verb, strColor, "btn" & MethodName, strLink, Desc, strParams, Body, strExpected, strInputDisabled, strDisabledBackground)
+	DocScripts = DocScripts & GenerateResponseScript(Verb, "btn" & MethodName)
 	Return strHTML
 End Sub

@@ -5,11 +5,26 @@ Type=StaticCode
 Version=8.1
 @EndOfDesignText@
 ' Utility Code module
-' Version 1.15
+' Version 1.16
 Sub Process_Globals
 	Private const CONTENT_TYPE_JSON As String = "application/json"
 	Private const CONTENT_TYPE_HTML As String = "text/html"
 	Type HttpResponseMessage (ResponseCode As Int, ResponseString As String, ResponseData As List, ResponseMessage As String, ResponseError As String, ResponseType As String, ContentType As String)
+End Sub
+
+Public Sub CheckMaxElements (Elements() As String, Max_Elements As Int) As Boolean
+	If Elements.Length > Max_Elements Or Elements.Length = 0 Then
+		Return False
+	End If
+	Return True
+End Sub
+
+Public Sub CheckAllowedVerb (SupportedMethods As List, Method As String) As Boolean
+	'Methods: POST, GET, PUT, PATCH, DELETE
+	If SupportedMethods.IndexOf(Method) = -1 Then
+		Return False
+	End If
+	Return True
 End Sub
 
 Public Sub BuildHtml (strHTML As String, Settings As Map) As String

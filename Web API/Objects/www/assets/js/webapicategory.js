@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  $.getJSON("/v1/category/list", function (response) {
+  $.getJSON("/v1/categories/list", function (response) {
     var tbl_head = "";
     var tbl_body = "";
     if (response.r.length) {
@@ -70,7 +70,7 @@ $(document).on('click', '#add', function (e) {
         data: data,
         dataType: "json",
         type: "post",
-        url: "/v1/category",
+        url: "/v1/categories",
         success: function (response) {
           $('#new').modal('hide');
           if (response.a == 201) {
@@ -112,7 +112,7 @@ $(document).on('click', '#update', function (e) {
         data: data,
         dataType: "json",
         type: "put",
-        url: "/v1/category/" + $('#id1').val(),
+        url: "/v1/categories/" + $('#id1').val(),
         success: function (response) {
           $('#edit').modal('hide');
           if (response.a == 200) {
@@ -140,7 +140,7 @@ $(document).on('click', '#remove', function (e) {
     data: data,
     dataType: "json",
     type: "delete",
-    url: "/v1/category/" + $('#id2').val(),
+    url: "/v1/categories/" + $('#id2').val(),
     success: function (response) {
       $('#delete').modal('hide');
       if (response.a == 200) {

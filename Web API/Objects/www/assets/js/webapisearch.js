@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  $.getJSON("/v1/category", function (result) {
+  $.getJSON("/v1/categories", function (result) {
     var item = result.r;
     var $category1 = $("#category1");
     var $category2 = $("#category2");
@@ -185,7 +185,7 @@ $(document).on('click', '#add', function (e) {
         data: data,
         dataType: "json",
         type: "post",
-        url: "/v1/product",
+        url: "/v1/products",
         success: function (response) {
           $('#new').modal('hide');
           if (response.a == 201) {
@@ -235,7 +235,7 @@ $(document).on('click', '#update', function (e) {
         data: data,
         dataType: "json",
         type: "put",
-        url: "/v1/product/" + $('#id1').val(),
+        url: "/v1/products/" + $('#id1').val(),
         success: function (response) {
           $('#edit').modal('hide');
           if (response.a == 200) {
@@ -263,7 +263,7 @@ $(document).on('click', '#remove', function (e) {
     data: data,
     dataType: "json",
     type: "delete",
-    url: "/v1/product/" + $('#id2').val(),
+    url: "/v1/products/" + $('#id2').val(),
     success: function (response) {
       $('#delete').modal('hide');
       if (response.a == 200) {

@@ -5,7 +5,7 @@ Type=Class
 Version=8.1
 @EndOfDesignText@
 ' Home Handler class
-' Version 1.15
+' Version 1.16
 Sub Class_Globals
 	Private Request As ServletRequest
 	Private Response As ServletResponse
@@ -13,7 +13,7 @@ Sub Class_Globals
 End Sub
 
 Public Sub Initialize
-
+	HRM.Initialize
 End Sub
 
 Sub Handle (req As ServletRequest, resp As ServletResponse)
@@ -44,51 +44,51 @@ Private Sub ShowHomePage
 End Sub
 
 Private Sub Search (SearchForText As String)
-	Dim con As SQL = Main.DB.GetConnection
-	Dim strSQL As String
 	Try
+		Dim List1 As List
+		List1.Initialize
+		
+		Dim con As SQL = Main.DB.GetConnection
+		
 		Dim keys() As String = Regex.Split2(" ", 2, SearchForText)
-
 		If keys.Length < 2 Then
 			Dim s1 As String = SearchForText.Trim
 			'Log(s1)
+			
 			If s1 = "all" Then
-				strSQL = $"SELECT P.id As aa, P.product_code As bb, C.`category_name` As cc, P.product_name As dd, P.product_price As ee, P.`category_id` As ff
+				Dim strSQL As String = $"SELECT P.id As aa, P.product_code As bb, C.`category_name` As cc, P.product_name As dd, P.product_price As ee, P.`category_id` As ff
 				FROM `tbl_products` P JOIN `tbl_category` C ON P.`category_id` = C.`id`"$
 				Dim res As ResultSet = con.ExecQuery(strSQL)
 			Else
-				strSQL = Main.queries.Get("SEARCH_PRODUCT_BY_CATEGORY_CODE_AND_NAME_ONEWORD_ORDERED")
+				Dim strSQL As String = Main.queries.Get("SEARCH_PRODUCT_BY_CATEGORY_CODE_AND_NAME_ONEWORD_ORDERED")
 				Dim res As ResultSet = con.ExecQuery2(strSQL, Array As String("%" & s1 & "%", "%" & s1 & "%", "%" & s1 & "%"))
 			End If
 		Else
 			Dim s1 As String = keys(0).Trim
 			Dim s2 As String = SearchForText.Replace(keys(0), "").Trim
 			'Log(s1 & "," & s2)
-			strSQL = Main.queries.Get("SEARCH_PRODUCT_BY_CATEGORY_CODE_AND_NAME_TWOWORDS_ORDERED")
+			Dim strSQL As String = Main.queries.Get("SEARCH_PRODUCT_BY_CATEGORY_CODE_AND_NAME_TWOWORDS_ORDERED")
 			Dim res As ResultSet = con.ExecQuery2(strSQL, Array As String("%" & s1 & "%", "%" & s1 & "%", "%" & s1 & "%", _
 			"%" & s2 & "%", "%" & s2 & "%", "%" & s2 & "%"))
 		End If
-
-		Dim List1 As List
-		List1.Initialize
 		Do While res.NextRow
 			Dim Map2 As Map
 			Map2.Initialize
 			For i = 0 To res.ColumnCount - 1
-				If res.GetColumnName(i) = "aa" Then
-					Map2.Put(res.GetColumnName(i), res.GetInt2(i))
-				Else If res.GetColumnName(i) = "ee" Then
-					Map2.Put(res.GetColumnName(i), NumberFormat2(res.GetDouble2(i), 1, 2, 2, True))
-				Else
-					Map2.Put(res.GetColumnName(i), res.GetString2(i))
-				End If
+				Select res.GetColumnName(i)
+					Case "aa"
+						Map2.Put(res.GetColumnName(i), res.GetInt2(i))
+					Case "ee"
+						Map2.Put(res.GetColumnName(i), NumberFormat2(res.GetDouble2(i), 1, 2, 2, True))
+					Case Else
+						Map2.Put(res.GetColumnName(i), res.GetString2(i))
+				End Select
 			Next
 			List1.Add(Map2)
 		Loop
 		Utility.ReturnSuccess2(List1, 200, Response)
 	Catch
 		LogError(LastException)
-		HRM.Initialize
 		HRM.ResponseCode = 422
 		HRM.ResponseError = "Error Execute Query"
 		Utility.ReturnHttpResponse(HRM, Response)
